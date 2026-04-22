@@ -42,7 +42,7 @@ fun AppHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.park_icon),
+                painter = painterResource(id = R.drawable.park_icon_nobg),
                 contentDescription = "App Logo",
                 modifier = Modifier.size(32.dp)
             )

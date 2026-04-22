@@ -18,10 +18,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,15 +38,10 @@ import com.example.parkmate.ui.components.SectionTitle
 import com.example.parkmate.ui.viewmodel.StatsViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
-import androidx.compose.runtime.remember
-import com.google.maps.android.compose.TileOverlay
-import com.google.maps.android.compose.TileOverlayState
-import com.google.maps.android.heatmaps.HeatmapTileProvider
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import kotlin.math.max
 
 @Composable
@@ -48,6 +49,7 @@ fun StatsScreen(
     viewModel: StatsViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var isMapInteracting by remember { mutableStateOf(false) }
 
     val defaultCenter = uiState.heatmapPoints.firstOrNull()?.let {
         LatLng(it.latitude, it.longitude)
@@ -57,127 +59,164 @@ fun StatsScreen(
         position = CameraPosition.fromLatLngZoom(defaultCenter, 12f)
     }
 
-    val heatmapProvider = remember(uiState.heatmapPoints) {
-        if (uiState.heatmapPoints.isEmpty()) {
-            null
-        } else {
-            val weightedData = uiState.heatmapPoints.map { point ->
-                com.google.maps.android.heatmaps.WeightedLatLng(
-                    LatLng(point.latitude, point.longitude),
-                    point.intensity.toDouble().coerceAtLeast(0.1)
-                )
-            }
-
-            HeatmapTileProvider.Builder()
-                .weightedData(weightedData)
-                .radius(50) // Fix: Radius must be between 10 and 50
-                .opacity(0.7)
-                .build()
-        }
-    }
-
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(20.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+        // to move through the map swiftly
+        userScrollEnabled = !isMapInteracting
     ) {
-        SectionTitle(
-            title = "Stats",
-            subtitle = "Track sessions, spending and parking habits."
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            MetricCard(
-                title = "Total Sessions",
-                value = uiState.totalSessions.toString(),
-                modifier = Modifier.weight(1f)
-            )
-            MetricCard(
-                title = "Active",
-                value = uiState.activeSessions.toString(),
-                modifier = Modifier.weight(1f)
+        item {
+            SectionTitle(
+                title = "Stats",
+                subtitle = "Track sessions, spending and parking habits."
             )
         }
 
-        MonthlySpendingChartCard(
-            data = uiState.monthlySpending,
-            totalSpent = uiState.totalSpent
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            MetricCard(
-                title = "Most Used Parking Type",
-                value = uiState.mostUsedParkingType,
-                modifier = Modifier.weight(1f)
-            )
-            MetricCard(
-                title = "Most Used Vehicle",
-                value = uiState.mostUsedVehicleName,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        MetricCard(
-            title = "Saved Locations",
-            value = uiState.savedLocationsCount.toString()
-        )
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = "Parking Heatmap",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Text(
-                text = "Where you park most across the city.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(320.dp)
-                .background(
-                    color = MaterialTheme.parkMateColors.surfaceContainerLowest,
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .padding(8.dp)
-        ) {
-            GoogleMap(
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState,
-                uiSettings = MapUiSettings(
-                    zoomControlsEnabled = false,
-                    mapToolbarEnabled = false,
-                    myLocationButtonEnabled = false
-                )
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                heatmapProvider?.let { provider ->
-                    TileOverlay(
-                        tileProvider = provider,
-                        state = remember { TileOverlayState() }
+                MetricCard(
+                    title = "Total Sessions",
+                    value = uiState.totalSessions.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+                MetricCard(
+                    title = "Active",
+                    value = uiState.activeSessions.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        item {
+            MonthlySpendingChartCard(
+                data = uiState.monthlySpending,
+                totalSpent = uiState.totalSpent
+            )
+        }
+
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                MetricCard(
+                    title = "Most Used Parking Type",
+                    value = uiState.mostUsedParkingType,
+                    modifier = Modifier.weight(1f)
+                )
+                MetricCard(
+                    title = "Most Used Vehicle",
+                    value = uiState.mostUsedVehicleName,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        item {
+            MetricCard(
+                title = "Saved Locations",
+                value = uiState.savedLocationsCount.toString()
+            )
+        }
+
+        item {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Parking Heatmap",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Text(
+                    text = "Where you park most across the city.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(320.dp)
+                    .background(
+                        color = MaterialTheme.parkMateColors.surfaceContainerLowest,
+                        shape = RoundedCornerShape(24.dp)
                     )
+                    .padding(8.dp)
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                if (event.type == PointerEventType.Press) {
+                                    isMapInteracting = true
+                                } else if (event.type == PointerEventType.Release) {
+                                    isMapInteracting = false
+                                }
+                            }
+                        }
+                    }
+            ) {
+                GoogleMap(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            color = MaterialTheme.colorScheme.surface,
+                            shape = RoundedCornerShape(20.dp)
+                        ),
+                    cameraPositionState = cameraPositionState,
+                    uiSettings = MapUiSettings(
+                        zoomControlsEnabled = true,
+                        mapToolbarEnabled = false,
+                        myLocationButtonEnabled = false
+                    )
+                ) {
+                    uiState.heatmapPoints.forEach { point ->
+                        val center = LatLng(point.latitude, point.longitude)
+                        val safeIntensity = point.intensity.coerceIn(0f, 1f)
+
+                        Circle(
+                            center = center,
+                            radius = 90.0 + (safeIntensity * 260.0),
+                            fillColor = if (MaterialTheme.colorScheme.background.red < 0.2f) {
+                                Color(0x44FF8A00)
+                            } else {
+                                Color(0x55FF8A00)
+                            },
+                            strokeColor = Color.Transparent,
+                            strokeWidth = 0f
+                        )
+
+                        Circle(
+                            center = center,
+                            radius = 40.0 + (safeIntensity * 120.0),
+                            fillColor = if (MaterialTheme.colorScheme.background.red < 0.2f) {
+                                Color(0x66FFB300)
+                            } else {
+                                Color(0x88FFB300)
+                            },
+                            strokeColor = Color.Transparent,
+                            strokeWidth = 0f
+                        )
+                    }
                 }
             }
         }
 
-        Text(
-            text = "Heat areas show where you parked most often.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        item {
+            Text(
+                text = "Current version uses a soft visual hotspot layer. It can be upgraded to a true Google Maps heatmap tile layer.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -242,7 +281,7 @@ private fun MonthlySpendingChartCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1
                     )
-                    // dichiaro le variabili xchè nn posso usare colorScheme fuori da un Compose
+
                     val barGradientColors = listOf(
                         MaterialTheme.parkMateColors.gradientEnd,
                         MaterialTheme.colorScheme.primary
