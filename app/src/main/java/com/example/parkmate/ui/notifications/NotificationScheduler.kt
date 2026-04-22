@@ -1,5 +1,6 @@
 package com.example.parkmate.ui.notifications
 
+import android.os.Build
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -14,7 +15,7 @@ object NotificationScheduler {
     private const val REMINDER_WORK_NAME = "parking_reminder_work"
     private const val WARNING_MINUTES_DEFAULT = 15L
 
-    fun scheduleRecurringParkingReminders(context: Context) {
+    fun scheduleParkingReminder(context: Context) {
         val request = PeriodicWorkRequestBuilder<ParkingReminderWorker>(
             15, TimeUnit.MINUTES
         ).build()
@@ -26,8 +27,17 @@ object NotificationScheduler {
         )
     }
 
+    fun cancelParkingReminder(context: Context) {
+        WorkManager.getInstance(context)
+            .cancelUniqueWork(REMINDER_WORK_NAME)
+    }
+
+    fun scheduleRecurringParkingReminders(context: Context) {
+        scheduleParkingReminder(context)
+    }
+
     fun cancelRecurringParkingReminders(context: Context) {
-        WorkManager.getInstance(context).cancelUniqueWork(REMINDER_WORK_NAME)
+        cancelParkingReminder(context)
     }
 
     fun scheduleFixedTicketAlarms(
@@ -54,20 +64,51 @@ object NotificationScheduler {
             )
         }
 
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            expiryMillis,
-            ticketPendingIntent(
-                context = context,
-                sessionId = sessionId,
-                locationName = locationName,
-                mode = TicketAlarmReceiver.MODE_EXPIRED,
-                requestCodeOffset = 20_000
-            )
+        val expiredPendingIntent = ticketPendingIntent(
+            context = context,
+            sessionId = sessionId,
+            locationName = locationName,
+            mode = TicketAlarmReceiver.MODE_EXPIRED,
+            requestCodeOffset = 20_000
         )
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // Android 12+
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        expiryMillis,
+                        expiredPendingIntent
+                    )
+                } else {
+                    alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        expiryMillis,
+                        expiredPendingIntent
+                    )
+                }
+            } else {
+                // Android < 12 -> nessun permesso richiesto
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    expiryMillis,
+                    expiredPendingIntent
+                )
+            }
+        } catch (_: SecurityException) {
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                expiryMillis,
+                expiredPendingIntent
+            )
+        }
     }
 
-    fun cancelFixedTicketAlarms(context: Context, sessionId: Long) {
+    fun cancelFixedTicketAlarms(
+        context: Context,
+        sessionId: Long
+    ) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         alarmManager.cancel(

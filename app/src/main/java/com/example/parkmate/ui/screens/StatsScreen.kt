@@ -31,6 +31,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.Tile
+import com.google.maps.android.compose.TileOverlay
+import com.google.maps.android.compose.TileOverlayState
+import com.google.maps.android.heatmaps.HeatmapTileProvider
 import com.example.parkmate.ui.theme.parkMateColors
 import com.example.parkmate.ui.viewmodel.MonthlySpendUi
 import com.example.parkmate.ui.components.MetricCard
@@ -57,6 +61,25 @@ fun StatsScreen(
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultCenter, 12f)
+    }
+
+    val heatmapProvider = remember(uiState.heatmapPoints) {
+        if (uiState.heatmapPoints.isEmpty()) {
+            null
+        } else {
+            val weightedData = uiState.heatmapPoints.map { point ->
+                com.google.maps.android.heatmaps.WeightedLatLng(
+                    LatLng(point.latitude, point.longitude),
+                    point.intensity.toDouble().coerceAtLeast(0.1)
+                )
+            }
+
+            HeatmapTileProvider.Builder()
+                .weightedData(weightedData)
+                .radius(50)
+                .opacity(0.7)
+                .build()
+        }
     }
 
     LazyColumn(
@@ -165,12 +188,7 @@ fun StatsScreen(
                     }
             ) {
                 GoogleMap(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            color = MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(20.dp)
-                        ),
+                    modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
                     uiSettings = MapUiSettings(
                         zoomControlsEnabled = true,
@@ -178,32 +196,10 @@ fun StatsScreen(
                         myLocationButtonEnabled = false
                     )
                 ) {
-                    uiState.heatmapPoints.forEach { point ->
-                        val center = LatLng(point.latitude, point.longitude)
-                        val safeIntensity = point.intensity.coerceIn(0f, 1f)
-
-                        Circle(
-                            center = center,
-                            radius = 90.0 + (safeIntensity * 260.0),
-                            fillColor = if (MaterialTheme.colorScheme.background.red < 0.2f) {
-                                Color(0x44FF8A00)
-                            } else {
-                                Color(0x55FF8A00)
-                            },
-                            strokeColor = Color.Transparent,
-                            strokeWidth = 0f
-                        )
-
-                        Circle(
-                            center = center,
-                            radius = 40.0 + (safeIntensity * 120.0),
-                            fillColor = if (MaterialTheme.colorScheme.background.red < 0.2f) {
-                                Color(0x66FFB300)
-                            } else {
-                                Color(0x88FFB300)
-                            },
-                            strokeColor = Color.Transparent,
-                            strokeWidth = 0f
+                    heatmapProvider?.let { provider ->
+                        TileOverlay(
+                            tileProvider = provider,
+                            state = remember { TileOverlayState() }
                         )
                     }
                 }

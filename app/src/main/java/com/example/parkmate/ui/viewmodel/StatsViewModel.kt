@@ -122,8 +122,8 @@ class StatsViewModel(
         if (sessions.isEmpty()) return emptyList()
 
         val grouped = sessions.groupBy {
-            val latBucket = (it.latitude * 1000).toInt()
-            val lonBucket = (it.longitude * 1000).toInt()
+            val latBucket = (it.latitude * 2000).toInt()
+            val lonBucket = (it.longitude * 2000).toInt()
             latBucket to lonBucket
         }
 

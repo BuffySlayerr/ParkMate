@@ -19,12 +19,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ParkingApp">
+        <!--NOTIFICATIONS-->
         <receiver
             android:name=".ui.notifications.TicketAlarmReceiver"
             android:exported="false" />
+        <!--GEOFENCE-->
         <receiver
             android:name=".ui.geofence.GeofenceBroadcastReceiver"
             android:exported="false" />
+        <!--WIDGET-->
+        <receiver
+            android:name=".ui.widget.ParkingStatusWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/parking_status_widget_info" />
+        </receiver>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBdCg0SrIKKhmGwt5BULKknO7IijrDn-Xs" />

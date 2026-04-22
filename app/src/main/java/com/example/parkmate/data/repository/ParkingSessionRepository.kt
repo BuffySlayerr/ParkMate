@@ -6,9 +6,9 @@ import com.example.parkmate.data.local.dao.VehicleDao
 import com.example.parkmate.data.local.entity.ParkingSessionEntity
 import com.example.parkmate.data.model.ParkingType
 import com.example.parkmate.ui.notifications.NotificationScheduler
+import com.example.parkmate.ui.widget.ParkingStatusWidgetUpdater
 import kotlinx.coroutines.flow.Flow
 import kotlin.math.ceil
-import kotlin.math.max
 
 class ParkingSessionRepository(
     private val context: Context,
@@ -34,47 +34,49 @@ class ParkingSessionRepository(
         note: String?,
         photoUri: String?
     ) {
-        val session = ParkingSessionEntity(
-            vehicleId = vehicleId,
-            parkingType = parkingType,
-            latitude = latitude,
-            longitude = longitude,
-            locationName = locationName,
-            startTimeMillis = System.currentTimeMillis(),
-            hourlyRate = hourlyRate,
-            fixedTicketCost = fixedTicketCost,
-            fixedTicketExpiryMillis = fixedTicketExpiryMillis,
-            note = note,
-            photoUri = photoUri
+        val insertedSessionId = parkingSessionDao.insertSession(
+            ParkingSessionEntity(
+                vehicleId = vehicleId,
+                parkingType = parkingType,
+                latitude = latitude,
+                longitude = longitude,
+                locationName = locationName,
+                startTimeMillis = System.currentTimeMillis(),
+                hourlyRate = hourlyRate,
+                fixedTicketCost = fixedTicketCost,
+                fixedTicketExpiryMillis = fixedTicketExpiryMillis,
+                note = note,
+                photoUri = photoUri
+            )
         )
-
-        val sessionId = parkingSessionDao.insertSession(session)
 
         vehicleDao.updateParkedState(vehicleId, true)
 
-        NotificationScheduler.scheduleRecurringParkingReminders(context)
+        NotificationScheduler.scheduleParkingReminder(context)
 
         if (parkingType == ParkingType.FIXED_TICKET && fixedTicketExpiryMillis != null) {
             NotificationScheduler.scheduleFixedTicketAlarms(
                 context = context,
-                sessionId = sessionId,
+                sessionId = insertedSessionId,
                 locationName = locationName,
                 expiryMillis = fixedTicketExpiryMillis
             )
         }
+
+        ParkingStatusWidgetUpdater.updateAllWidgets(context)
     }
 
     suspend fun endSession(session: ParkingSessionEntity) {
         val now = System.currentTimeMillis()
+        val durationMillis = now - session.startTimeMillis
 
         val finalCost = when (session.parkingType) {
             ParkingType.FREE -> 0.0
 
             ParkingType.HOURLY_PAID -> {
                 val rate = session.hourlyRate ?: 0.0
-                val durationMillis = max(0L, now - session.startTimeMillis)
-                val hoursRoundedUp = ceil(durationMillis / 3_600_000.0).toInt().coerceAtLeast(1)
-                hoursRoundedUp * rate
+                val hoursRoundedUp = ceil(durationMillis / 3_600_000.0)
+                rate * hoursRoundedUp
             }
 
             ParkingType.FIXED_TICKET -> session.fixedTicketCost ?: 0.0
@@ -90,11 +92,13 @@ class ParkingSessionRepository(
 
         vehicleDao.updateParkedState(session.vehicleId, false)
 
+        val stillHasActiveSessions = parkingSessionDao.getActiveSessionsOnce().isNotEmpty()
+        if (!stillHasActiveSessions) {
+            NotificationScheduler.cancelParkingReminder(context)
+        }
+
         NotificationScheduler.cancelFixedTicketAlarms(context, session.id)
 
-        val stillActive = parkingSessionDao.getActiveSessionsOnce()
-        if (stillActive.isEmpty()) {
-            NotificationScheduler.cancelRecurringParkingReminders(context)
-        }
+        ParkingStatusWidgetUpdater.updateAllWidgets(context)
     }
 }
