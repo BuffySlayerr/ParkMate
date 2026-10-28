@@ -68,7 +68,7 @@ class ParkingReminderWorker(
             }
 
             ParkingType.FIXED_TICKET -> {
-                val countdown = formatCountdown(session.fixedTicketExpiryMillis, now)
+                val countdown = formatCountdown(applicationContext, session.fixedTicketExpiryMillis, now)
                 applicationContext.getString(
                     R.string.fixed_ticket_active_countdown_format,
                     countdown

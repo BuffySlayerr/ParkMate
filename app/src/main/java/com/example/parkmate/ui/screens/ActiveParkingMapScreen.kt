@@ -298,7 +298,10 @@ fun ActiveParkingMapScreen(
         ) {
             StartParkingScreen(
                 viewModel = viewModel,
-                onRequestExactAlarmPermission = onRequestExactAlarmPermission
+                onRequestExactAlarmPermission = onRequestExactAlarmPermission,
+                onSessionStarted = {
+                    showStartParkingSheet = false
+                }
             )
         }
     }

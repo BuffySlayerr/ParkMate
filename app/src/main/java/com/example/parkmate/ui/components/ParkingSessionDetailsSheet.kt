@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,6 +57,7 @@ fun ParkingSessionDetailsSheet(
     vehicle: VehicleEntity?,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
     val now = System.currentTimeMillis()
 
     val vehicleName = vehicle?.name ?: stringResource(id = R.string.vehicle)
@@ -99,7 +101,7 @@ fun ParkingSessionDetailsSheet(
     }
 
     val countdownText = if (session.parkingType == ParkingType.FIXED_TICKET) {
-        formatCountdown(session.fixedTicketExpiryMillis, now)
+        formatCountdown(context, session.fixedTicketExpiryMillis, now)
     } else {
         null
     }
@@ -159,7 +161,7 @@ fun ParkingSessionDetailsSheet(
                         )
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                     style = MaterialTheme.typography.labelMedium,
-                    //color = if (session.isActive) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurface
+                    color = if (session.isActive) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurface
                 )
             }
 

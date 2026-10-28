@@ -1,5 +1,7 @@
 package com.example.parkmate.ui.util
 
+import android.content.Context
+import com.example.parkmate.R
 import com.example.parkmate.data.local.entity.ParkingSessionEntity
 import com.example.parkmate.data.model.ParkingType
 import kotlin.math.ceil
@@ -45,17 +47,21 @@ fun calculateSessionCostNow(
     }
 }
 
-fun formatCountdown(expiryMillis: Long?, nowMillis: Long = System.currentTimeMillis()): String {
-    if (expiryMillis == null) return "No expiry set"
+fun formatCountdown(context: Context, expiryMillis: Long?, nowMillis: Long = System.currentTimeMillis()): String {
+    if (expiryMillis == null) return context.getString(R.string.no_expiry)
 
     val remaining = max(0L, expiryMillis - nowMillis)
     val totalMinutes = (remaining / 60_000L).toInt()
     val hours = totalMinutes / 60
     val minutes = totalMinutes % 60
 
-    return when {
-        remaining <= 0L -> "Expired"
-        hours > 0 -> if (minutes > 0) "${hours}h ${minutes}m left" else "${hours}h left"
-        else -> "${minutes}m left"
+    if (remaining <= 0L) return context.getString(R.string.expired)
+
+    val timeText = if (hours > 0) {
+        if (minutes > 0) "${hours}h ${minutes}m" else "${hours}h"
+    } else {
+        "${minutes}m"
     }
+
+    return context.getString(R.string.time_left_format, timeText)
 }

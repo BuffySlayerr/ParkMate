@@ -135,4 +135,8 @@
 
     <string name="new_parking_eyebrow">AVVIA SESSIONE</string>
     <string name="new_parking_title">Nuovo parcheggio</string>
+
+    <string name="expired">Scaduto</string>
+    <string name="no_expiry">Nessuna scadenza impostata</string>
+    <string name="time_left_format">%1$s rimanenti</string>
 </resources>

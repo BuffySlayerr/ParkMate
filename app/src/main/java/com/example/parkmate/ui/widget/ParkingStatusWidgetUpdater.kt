@@ -177,7 +177,7 @@ object ParkingStatusWidgetUpdater {
             }
 
             ParkingType.FIXED_TICKET -> {
-                val countdown = formatCountdown(activeSession.fixedTicketExpiryMillis, now)
+                val countdown = formatCountdown(context, activeSession.fixedTicketExpiryMillis, now)
                 context.getString(R.string.fixed_ticket_format, countdown)
             }
         }

@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.parkmate.R
@@ -38,6 +39,7 @@ fun ActiveParkingCard(
     onEndSession: () -> Unit,
     onViewDetails: () -> Unit
 ) {
+    val context = LocalContext.current
     val elapsedMillis = nowMillis - session.startTimeMillis
     val elapsedText = formatDurationCompact(elapsedMillis)
 
@@ -50,7 +52,7 @@ fun ActiveParkingCard(
         }
 
         ParkingType.FIXED_TICKET -> {
-            val countdown = formatCountdown(session.fixedTicketExpiryMillis, nowMillis)
+            val countdown = formatCountdown(context, session.fixedTicketExpiryMillis, nowMillis)
             stringResource(id = R.string.ticket_active_countdown_format, countdown)
         }
     }

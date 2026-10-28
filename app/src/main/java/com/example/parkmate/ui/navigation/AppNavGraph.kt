@@ -115,7 +115,8 @@ fun AppNavGraph(
                 composable(Routes.START_PARKING) {
                     StartParkingScreen(
                         viewModel = parkingSessionViewModel,
-                        onRequestExactAlarmPermission = onRequestExactAlarmPermission
+                        onRequestExactAlarmPermission = onRequestExactAlarmPermission,
+                        onSessionStarted = {}
                     )
                 }
 

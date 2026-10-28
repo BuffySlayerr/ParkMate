@@ -135,4 +135,8 @@
 
     <string name="new_parking_eyebrow">START SESSION</string>
     <string name="new_parking_title">New Parking</string>
+
+    <string name="expired">Expired</string>
+    <string name="no_expiry">No expiry set</string>
+    <string name="time_left_format">%1$s left</string>
 </resources>

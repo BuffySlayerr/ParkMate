@@ -67,7 +67,8 @@ import java.util.Locale
 @Composable
 fun StartParkingScreen(
     viewModel: ParkingSessionViewModel,
-    onRequestExactAlarmPermission: () -> Unit
+    onRequestExactAlarmPermission: () -> Unit,
+    onSessionStarted: () -> Unit
 ) {
     val context = LocalContext.current
     val vehicles by viewModel.vehicles.collectAsState()
@@ -494,6 +495,7 @@ fun StartParkingScreen(
                     selectedMapLabel = null
                     currentPhotoUri = null
                     savedPhotoUriString = null
+                    onSessionStarted()
                 }
             )
         }
