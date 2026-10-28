@@ -63,7 +63,7 @@ val DarkGradientStart = Color(0xFFA9C7FF)
 val DarkGradientEnd = Color(0xFF6EA8FF)
 
 // -------------------- APP TOKENS USED IN UI --------------------
-// these are mapped in Theme.kt, but keeping these names avoids changing the rest of your app
+// these are mapped in Theme.kt, but keeping these names avoids changing the rest of the app
 
 val PrimaryBlue = LightPrimary
 val PrimaryBlueContainer = LightPrimaryContainer

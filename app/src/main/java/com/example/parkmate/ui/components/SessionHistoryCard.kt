@@ -1,5 +1,6 @@
 package com.example.parkmate.ui.components
 
+import com.example.parkmate.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.parkmate.data.local.entity.ParkingSessionEntity
@@ -44,8 +46,8 @@ fun SessionHistoryCard(
 ) {
     var showDetails by remember { mutableStateOf(false) }
 
-    val vehicleName = vehicle?.name ?: "Vehicle"
-    val locationName = session.locationName ?: "Unknown location"
+    val vehicleName = vehicle?.name ?: stringResource(id = R.string.vehicle)
+    val locationName = session.locationName ?: stringResource(id = R.string.unknown_location)
 
     val vehicleIcon = when (vehicle?.type) {
         VehicleType.CAR -> Icons.Default.DirectionsCar
@@ -56,7 +58,7 @@ fun SessionHistoryCard(
 
     val durationText = if (session.isActive) {
         val elapsedMillis = System.currentTimeMillis() - session.startTimeMillis
-        formatHistoryDuration(elapsedMillis) + " elapsed"
+        stringResource(id = R.string.started_ago_format, formatHistoryDuration(elapsedMillis))
     } else {
         val end = session.endTimeMillis ?: session.startTimeMillis
         formatHistoryDuration(max(0L, end - session.startTimeMillis))
@@ -103,13 +105,13 @@ fun SessionHistoryCard(
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
 
                     if (session.isActive) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "ACTIVE",
+                            text = stringResource(id = R.string.active_banner),
                             modifier = Modifier
                                 .background(
                                     color = MaterialTheme.parkMateColors.livePill,
@@ -117,7 +119,7 @@ fun SessionHistoryCard(
                                 )
                                 .padding(horizontal = 6.dp, vertical = 2.dp),
                             style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1
+                            maxLines = 1,
                         )
                     }
                 }
@@ -162,7 +164,10 @@ fun SessionHistoryCard(
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     ) {
-                        Text("Details", style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            text = stringResource(id = R.string.details),
+                            style = MaterialTheme.typography.labelMedium
+                        )
                     }
                 }
             }

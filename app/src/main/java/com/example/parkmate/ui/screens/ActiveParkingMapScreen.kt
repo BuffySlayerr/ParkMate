@@ -1,5 +1,6 @@
 package com.example.parkmate.ui.screens
 
+import com.example.parkmate.R
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
@@ -155,7 +157,7 @@ fun ActiveParkingMapScreen(
                         state = MarkerState(
                             position = LatLng(session.latitude, session.longitude)
                         ),
-                        title = session.locationName ?: "Active parking",
+                        title = session.locationName ?: stringResource(id = R.string.parking_active),
                         snippet = null,
                         onClick = {
                             selectedSessionForCard = session
@@ -198,7 +200,7 @@ fun ActiveParkingMapScreen(
         ) {
             FloatingMapActionButton(
                 icon = Icons.Default.GpsFixed,
-                contentDescription = "Center map",
+                contentDescription = stringResource(id = R.string.open_map),
                 onClick = { centerOnCurrentLocation() }
             )
 
@@ -235,7 +237,7 @@ fun ActiveParkingMapScreen(
             }
 
             PrimaryCtaButton(
-                text = "Start Parking Session",
+                text = stringResource(id = R.string.start_parking_session),
                 onClick = {
                     showStartParkingSheet = true
                 }
@@ -264,7 +266,7 @@ fun ActiveParkingMapScreen(
                     buildString {
                         appendLine(location.address)
                         appendLine()
-                        append("Saved place available for quick parking start.")
+                        append(stringResource(id = R.string.saved_location_dialog_text))
                     }
                 )
             },
@@ -274,7 +276,7 @@ fun ActiveParkingMapScreen(
             textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             confirmButton = {
                 TextButton(onClick = { selectedSavedLocation = null }) {
-                    Text("OK")
+                    Text(stringResource(id = R.string.ok))
                 }
             }
         )

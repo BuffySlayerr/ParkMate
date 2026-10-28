@@ -8,6 +8,7 @@ import com.example.parkmate.ui.viewmodel.ParkingSessionViewModel
 import com.example.parkmate.ui.viewmodel.SavedLocationViewModel
 import com.example.parkmate.ui.viewmodel.StatsViewModel
 import com.example.parkmate.ui.viewmodel.VehicleViewModel
+import com.example.parkmate.ui.activityrecognition.ActivityRecognitionPermissionHandler
 
 @Composable
 fun ParkMateApp(
@@ -19,6 +20,7 @@ fun ParkMateApp(
     initialRoute: String? = null
 ) {
     ParkMateTheme {
+        ActivityRecognitionPermissionHandler()
         Surface {
             AppNavGraph(
                 vehicleViewModel = vehicleViewModel,

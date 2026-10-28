@@ -25,7 +25,7 @@ fun FloatingMapActionButton(
 ) {
     Box(
         modifier = Modifier
-            .size(56.dp)
+            .size(52.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.parkMateColors.surfaceContainerLowest.copy(alpha = 0.94f))
             .clickable(

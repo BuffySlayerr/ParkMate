@@ -74,7 +74,6 @@ object NotificationScheduler {
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // Android 12+
                 if (alarmManager.canScheduleExactAlarms()) {
                     alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
@@ -89,7 +88,6 @@ object NotificationScheduler {
                     )
                 }
             } else {
-                // Android < 12 -> nessun permesso richiesto
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     expiryMillis,

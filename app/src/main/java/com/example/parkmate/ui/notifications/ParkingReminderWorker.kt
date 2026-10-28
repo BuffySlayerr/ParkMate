@@ -8,8 +8,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.core.app.TaskStackBuilder
+import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.parkmate.MainActivity
@@ -36,20 +36,43 @@ class ParkingReminderWorker(
         if (activeSessions.isEmpty()) return Result.success()
 
         val session = activeSessions.first()
-        val elapsed = formatDurationCompact(System.currentTimeMillis() - session.startTimeMillis)
+        val now = System.currentTimeMillis()
+        val elapsedMillis = now - session.startTimeMillis
+        val elapsed = formatDurationCompact(elapsedMillis)
+
+        val justStarted = elapsedMillis < 60_000L
 
         val message = when (session.parkingType) {
-            ParkingType.FREE ->
-                "Parking active for $elapsed."
+            ParkingType.FREE -> {
+                if (justStarted) {
+                    applicationContext.getString(R.string.parking_just_started)
+                } else {
+                    applicationContext.getString(R.string.parking_active_for_format, elapsed)
+                }
+            }
 
             ParkingType.HOURLY_PAID -> {
-                val cost = calculateSessionCostNow(session)
-                "Parking active for $elapsed. Current cost: € %.2f".format(cost)
+                val cost = calculateSessionCostNow(session, now)
+                if (justStarted) {
+                    applicationContext.getString(
+                        R.string.parking_just_started_cost_format,
+                        cost
+                    )
+                } else {
+                    applicationContext.getString(
+                        R.string.parking_active_for_cost_format,
+                        elapsed,
+                        cost
+                    )
+                }
             }
 
             ParkingType.FIXED_TICKET -> {
-                val countdown = formatCountdown(session.fixedTicketExpiryMillis)
-                "Fixed ticket active. $countdown"
+                val countdown = formatCountdown(session.fixedTicketExpiryMillis, now)
+                applicationContext.getString(
+                    R.string.fixed_ticket_active_countdown_format,
+                    countdown
+                )
             }
         }
 
@@ -79,7 +102,7 @@ class ParkingReminderWorker(
         )
             .setSmallIcon(R.drawable.ic_stat_parking_notification)
             .setLargeIcon(largeIcon)
-            .setContentTitle(session.locationName ?: "Active parking")
+            .setContentTitle(session.locationName ?: applicationContext.getString(R.string.parking_active))
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

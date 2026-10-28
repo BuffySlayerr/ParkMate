@@ -21,11 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.parkmate.R
 import com.example.parkmate.data.local.entity.ParkingSessionEntity
 import com.example.parkmate.data.model.ParkingType
-import com.example.parkmate.ui.theme.SecondaryContainerSoft
-import com.example.parkmate.ui.theme.SurfaceContainerLowest
 import com.example.parkmate.ui.theme.parkMateColors
 import com.example.parkmate.ui.util.calculateSessionCostNow
 import com.example.parkmate.ui.util.formatCountdown
@@ -42,16 +42,16 @@ fun ActiveParkingCard(
     val elapsedText = formatDurationCompact(elapsedMillis)
 
     val subtitle = when (session.parkingType) {
-        ParkingType.FREE -> "Started $elapsedText ago"
+        ParkingType.FREE -> stringResource(id = R.string.started_ago_format, elapsedText)
 
         ParkingType.HOURLY_PAID -> {
             val costNow = calculateSessionCostNow(session, nowMillis)
-            "Running for $elapsedText · € %.2f".format(costNow)
+            stringResource(id = R.string.running_for_cost_format, elapsedText, costNow)
         }
 
         ParkingType.FIXED_TICKET -> {
             val countdown = formatCountdown(session.fixedTicketExpiryMillis, nowMillis)
-            "Ticket active · $countdown"
+            stringResource(id = R.string.ticket_active_countdown_format, countdown)
         }
     }
 
@@ -85,7 +85,7 @@ fun ActiveParkingCard(
 
             Column {
                 Text(
-                    text = session.locationName ?: "Current Session",
+                    text = session.locationName ?: stringResource(id = R.string.current_session),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -115,7 +115,10 @@ fun ActiveParkingCard(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                Text("Stop", style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = stringResource(id = R.string.stop),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
 
             Button(
@@ -130,7 +133,10 @@ fun ActiveParkingCard(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text("Details", style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = stringResource(id = R.string.details),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }

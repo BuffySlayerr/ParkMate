@@ -1,3 +1,138 @@
 <resources>
-    <string name="app_name">Parking App</string>
+    <string name="app_name">ParkMate</string>
+
+    <string name="stats_title">Stats</string>
+    <string name="stats_subtitle">Track sessions, spending and parking habits.</string>
+    <string name="total_sessions">Total Sessions</string>
+    <string name="active">Active</string>
+    <string name="most_used_parking_type">Most Used Parking Type</string>
+    <string name="most_used_vehicle">Most Used Vehicle</string>
+    <string name="saved_locations">Saved Locations</string>
+    <string name="parking_heatmap">Parking Heatmap</string>
+    <string name="parking_heatmap_subtitle">Where you park most across the city.</string>
+
+    <string name="monthly_spending">Monthly Spending</string>
+    <string name="total_spent_format">€ %.2f total</string>
+
+    <string name="start_parking_session">Start Parking Session</string>
+    <string name="confirm_start">Confirm &amp; Start</string>
+    <string name="use_current_gps_location">Use current GPS location</string>
+    <string name="or_pick_from_map">Or pick from map</string>
+    <string name="take_photo">Take photo</string>
+    <string name="retake_photo">Retake photo</string>
+    <string name="add_note">Add Note</string>
+    <string name="hourly_rate">Hourly rate</string>
+    <string name="ticket_cost">Ticket cost</string>
+    <string name="validity_minutes">Validity in minutes</string>
+
+    <string name="pick_vehicle">Pick Vehicle</string>
+    <string name="parking_type">Parking Type</string>
+    <string name="saved_location">Saved Location</string>
+    <string name="photo">Photo</string>
+
+    <string name="parking_history">Parking History</string>
+    <string name="all_filters">All Filters</string>
+    <string name="vehicle">Vehicle</string>
+    <string name="type">Type</string>
+    <string name="status">Status</string>
+    <string name="all_vehicles">All Vehicles</string>
+    <string name="all_types">All Types</string>
+    <string name="all_status">All Status</string>
+    <string name="free">Free</string>
+    <string name="hourly">Hourly</string>
+    <string name="ticket">Ticket</string>
+    <string name="completed">Completed</string>
+    <string name="details">Details</string>
+    <string name="close">Close</string>
+    <string name="stop">Stop</string>
+
+    <string name="parking_active">Parking active</string>
+    <string name="cost_updating">Cost updating</string>
+    <string name="ticket_countdown">Ticket countdown</string>
+    <string name="no_active_parking">No active parking</string>
+    <string name="tap_to_open_parkmate">Tap to open ParkMate</string>
+    <string name="open_app">Open app</string>
+    <string name="open_map">Open map</string>
+
+    <string name="free_parking_format">Free · %1$s</string>
+    <string name="hourly_parking_format">Hourly · %1$s · € %2$.2f</string>
+    <string name="fixed_ticket_format">Fixed ticket · %1$s</string>
+
+    <string name="started_ago_format">Started %1$s ago</string>
+    <string name="running_for_cost_format">Running for %1$s · € %2$.2f</string>
+    <string name="ticket_active_countdown_format">Ticket active · %1$s</string>
+
+    <string name="session_details">Session details</string>
+    <string name="note">Note</string>
+    <string name="duration">Duration</string>
+    <string name="pricing">Pricing</string>
+    <string name="current_cost">Current cost</string>
+    <string name="final_cost">Final cost</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
+    <string name="expiry">Expiry</string>
+    <string name="countdown">Countdown</string>
+
+    <string name="still_active">Still active</string>
+    <string name="no_cost">No cost</string>
+    <string name="hourly_rate_format">€ %.2f / h</string>
+    <string name="fixed_cost_format">€ %.2f fixed</string>
+    <string name="cost_format">€ %.2f</string>
+
+    <string name="current_session">Current Session</string>
+    <string name="unknown_location">Unknown location</string>
+    <string name="selected_place">Selected place</string>
+    <string name="selected_location">Selected location</string>
+    <string name="current_location">Current location</string>
+    <string name="loading_address">Loading address...</string>
+
+    <string name="saved_location_dialog_text">Saved place available for quick parking start.</string>
+    <string name="ok">OK</string>
+
+    <string name="active_banner">ACTIVE</string>
+    <string name="elapsed">elapsed</string>
+    <string name="motorcycle">Motorcycle</string>
+    <string name="car">Car</string>
+    <string name="bicycle">Bicycle</string>
+
+    <string name="add_location">Add location</string>
+    <string name="new_location">New Location</string>
+    <string name="edit_location">Edit Location</string>
+    <string name="location_name">Location name</string>
+    <string name="street_address">Street / address</string>
+    <string name="choose_icon">Choose icon</string>
+    <string name="save_location">Save Location</string>
+    <string name="update_location">Update Location</string>
+    <string name="location_actions">Location actions</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
+    <string name="my_garage">My Garage</string>
+    <string name="add_vehicle">Add vehicle</string>
+    <string name="new_vehicle">New Vehicle</string>
+    <string name="edit_vehicle">Edit Vehicle</string>
+    <string name="vehicle_name">Vehicle name</string>
+    <string name="vehicle_type">Vehicle type</string>
+    <string name="save_vehicle">Save Vehicle</string>
+    <string name="update_vehicle">Update Vehicle</string>
+    <string name="vehicle_actions">Vehicle actions</string>
+    <string name="parked">PARKED</string>
+    <string name="not_parked">NOT PARKED</string>
+
+    <string name="activity_recognition_new_park_title">Did you park?</string>
+    <string name="activity_recognition_new_park_message">It looks like you stopped driving or cycling and started walking. Open ParkMate to start a parking session.</string>
+    <string name="activity_recognition_end_park_title">Still parked?</string>
+    <string name="activity_recognition_end_park_message">It looks like you moved away from your vehicle. Open ParkMate if you want to end the active parking session.</string>
+
+    <string name="ready">Ready</string>
+    <string name="refresh_widget">Refresh</string>
+
+    <string name="parking_just_started">Parking just started.</string>
+    <string name="parking_active_for_format">Parking active for %1$s.</string>
+    <string name="parking_just_started_cost_format">Parking just started. Current cost: € %1$.2f</string>
+    <string name="parking_active_for_cost_format">Parking active for %1$s. Current cost: € %2$.2f</string>
+    <string name="fixed_ticket_active_countdown_format">Fixed ticket active. %1$s</string>
+
+    <string name="new_parking_eyebrow">START SESSION</string>
+    <string name="new_parking_title">New Parking</string>
 </resources>

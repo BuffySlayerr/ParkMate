@@ -14,7 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.parkmate.R
 import com.example.parkmate.data.model.ParkingType
 import com.example.parkmate.ui.components.FilterChip
 import com.example.parkmate.ui.components.FilterDropdownChip
@@ -30,13 +32,28 @@ fun ParkingHistoryScreen(
     val sessions by viewModel.sessions.collectAsState()
     val vehicles by viewModel.vehicles.collectAsState()
 
-    var selectedVehicleName by remember { mutableStateOf("Vehicle") }
+    val vehicleLabel = stringResource(id = R.string.vehicle)
+    val typeLabel = stringResource(id = R.string.type)
+    val statusLabel = stringResource(id = R.string.status)
+
+    val allVehiclesOption = stringResource(id = R.string.all_vehicles)
+    val allTypesOption = stringResource(id = R.string.all_types)
+    val allStatusOption = stringResource(id = R.string.all_status)
+
+    val freeOption = stringResource(id = R.string.free)
+    val hourlyOption = stringResource(id = R.string.hourly)
+    val ticketOption = stringResource(id = R.string.ticket)
+
+    val activeOption = stringResource(id = R.string.active)
+    val completedOption = stringResource(id = R.string.completed)
+
+    var selectedVehicleName by remember { mutableStateOf(vehicleLabel) }
     var selectedVehicleId by remember { mutableStateOf<Long?>(null) }
 
-    var selectedTypeLabel by remember { mutableStateOf("Type") }
+    var selectedTypeFilterLabel by remember { mutableStateOf(typeLabel) }
     var selectedTypeFilter by remember { mutableStateOf<String?>(null) }
 
-    var selectedStatusLabel by remember { mutableStateOf("Status") }
+    var selectedStatusFilterLabel by remember { mutableStateOf(statusLabel) }
     var selectedStatusFilter by remember { mutableStateOf<String?>(null) }
 
     val filteredSessions = sessions.filter { session ->
@@ -44,16 +61,16 @@ fun ParkingHistoryScreen(
             selectedVehicleId == null || session.vehicleId == selectedVehicleId
 
         val matchesType = when (selectedTypeFilter) {
-            "Free" -> session.parkingType == ParkingType.FREE
-            "Hourly" -> session.parkingType == ParkingType.HOURLY_PAID
-            "Ticket" -> session.parkingType == ParkingType.FIXED_TICKET
+            freeOption -> session.parkingType == ParkingType.FREE
+            hourlyOption -> session.parkingType == ParkingType.HOURLY_PAID
+            ticketOption -> session.parkingType == ParkingType.FIXED_TICKET
             null -> true
             else -> true
         }
 
         val matchesStatus = when (selectedStatusFilter) {
-            "Active" -> session.isActive
-            "Completed" -> !session.isActive
+            activeOption -> session.isActive
+            completedOption -> !session.isActive
             null -> true
             else -> true
         }
@@ -61,9 +78,9 @@ fun ParkingHistoryScreen(
         matchesVehicle && matchesType && matchesStatus
     }.sortedByDescending { it.startTimeMillis }
 
-    val vehicleOptions = listOf("All Vehicles") + vehicles.map { it.name }
-    val typeOptions = listOf("All Types", "Free", "Hourly", "Ticket")
-    val statusOptions = listOf("All Status", "Active", "Completed")
+    val vehicleOptions = listOf(allVehiclesOption) + vehicles.map { it.name }
+    val typeOptions = listOf(allTypesOption, freeOption, hourlyOption, ticketOption)
+    val statusOptions = listOf(allStatusOption, activeOption, completedOption)
 
     LazyColumn(
         modifier = androidx.compose.ui.Modifier
@@ -74,7 +91,7 @@ fun ParkingHistoryScreen(
     ) {
         item {
             SectionTitle(
-                title = "Parking History",
+                title = stringResource(id = R.string.parking_history),
             )
         }
 
@@ -84,32 +101,32 @@ fun ParkingHistoryScreen(
             ) {
                 item {
                     FilterChip(
-                        text = "All Filters",
+                        text = stringResource(id = R.string.all_filters),
                         selected = selectedVehicleId == null &&
                                 selectedTypeFilter == null &&
                                 selectedStatusFilter == null,
                         onClick = {
                             selectedVehicleId = null
-                            selectedVehicleName = "Vehicle"
+                            selectedVehicleName = vehicleLabel
                             selectedTypeFilter = null
-                            selectedTypeLabel = "Type"
+                            selectedTypeFilterLabel = typeLabel
                             selectedStatusFilter = null
-                            selectedStatusLabel = "Status"
+                            selectedStatusFilterLabel = statusLabel
                         }
                     )
                 }
 
                 item {
                     FilterDropdownChip(
-                        label = "Vehicle",
+                        label = vehicleLabel,
                         value = selectedVehicleName,
                         options = vehicleOptions,
                         selected = selectedVehicleId != null,
                         activeStyle = FilterDropdownChipStyle.Standard,
                         onOptionSelected = { selected ->
-                            if (selected == "All Vehicles") {
+                            if (selected == allVehiclesOption) {
                                 selectedVehicleId = null
-                                selectedVehicleName = "Vehicle"
+                                selectedVehicleName = vehicleLabel
                             } else {
                                 val vehicle = vehicles.firstOrNull { it.name == selected }
                                 selectedVehicleId = vehicle?.id
@@ -121,18 +138,18 @@ fun ParkingHistoryScreen(
 
                 item {
                     FilterDropdownChip(
-                        label = "Type",
-                        value = selectedTypeLabel,
+                        label = typeLabel,
+                        value = selectedTypeFilterLabel,
                         options = typeOptions,
                         selected = selectedTypeFilter != null,
                         activeStyle = FilterDropdownChipStyle.Highlighted,
                         onOptionSelected = { selected ->
-                            if (selected == "All Types") {
+                            if (selected == allTypesOption) {
                                 selectedTypeFilter = null
-                                selectedTypeLabel = "Type"
+                                selectedTypeFilterLabel = typeLabel
                             } else {
                                 selectedTypeFilter = selected
-                                selectedTypeLabel = selected
+                                selectedTypeFilterLabel = selected
                             }
                         }
                     )
@@ -140,18 +157,18 @@ fun ParkingHistoryScreen(
 
                 item {
                     FilterDropdownChip(
-                        label = "Status",
-                        value = selectedStatusLabel,
+                        label = statusLabel,
+                        value = selectedStatusFilterLabel,
                         options = statusOptions,
                         selected = selectedStatusFilter != null,
                         activeStyle = FilterDropdownChipStyle.Highlighted,
                         onOptionSelected = { selected ->
-                            if (selected == "All Status") {
+                            if (selected == allStatusOption) {
                                 selectedStatusFilter = null
-                                selectedStatusLabel = "Status"
+                                selectedStatusFilterLabel = statusLabel
                             } else {
                                 selectedStatusFilter = selected
-                                selectedStatusLabel = selected
+                                selectedStatusFilterLabel = selected
                             }
                         }
                     )

@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ import com.google.android.gms.maps.model.Tile
 import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.TileOverlayState
 import com.google.maps.android.heatmaps.HeatmapTileProvider
+import com.example.parkmate.R
 import com.example.parkmate.ui.theme.parkMateColors
 import com.example.parkmate.ui.viewmodel.MonthlySpendUi
 import com.example.parkmate.ui.components.MetricCard
@@ -42,7 +44,6 @@ import com.example.parkmate.ui.components.SectionTitle
 import com.example.parkmate.ui.viewmodel.StatsViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -88,13 +89,12 @@ fun StatsScreen(
             .background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(20.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),
-        // to move through the map swiftly
         userScrollEnabled = !isMapInteracting
     ) {
         item {
             SectionTitle(
-                title = "Stats",
-                subtitle = "Track sessions, spending and parking habits."
+                title = stringResource(id = R.string.stats_title),
+                subtitle = stringResource(id = R.string.stats_subtitle)
             )
         }
 
@@ -103,12 +103,12 @@ fun StatsScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 MetricCard(
-                    title = "Total Sessions",
+                    title = stringResource(id = R.string.total_sessions),
                     value = uiState.totalSessions.toString(),
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
-                    title = "Active",
+                    title = stringResource(id = R.string.active),
                     value = uiState.activeSessions.toString(),
                     modifier = Modifier.weight(1f)
                 )
@@ -127,12 +127,12 @@ fun StatsScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 MetricCard(
-                    title = "Most Used Parking Type",
+                    title = stringResource(id = R.string.most_used_parking_type),
                     value = uiState.mostUsedParkingType,
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
-                    title = "Most Used Vehicle",
+                    title = stringResource(id = R.string.most_used_vehicle),
                     value = uiState.mostUsedVehicleName,
                     modifier = Modifier.weight(1f)
                 )
@@ -141,7 +141,7 @@ fun StatsScreen(
 
         item {
             MetricCard(
-                title = "Saved Locations",
+                title = stringResource(id = R.string.saved_locations),
                 value = uiState.savedLocationsCount.toString()
             )
         }
@@ -151,13 +151,13 @@ fun StatsScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "Parking Heatmap",
+                    text = stringResource(id = R.string.parking_heatmap),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
 
                 Text(
-                    text = "Where you park most across the city.",
+                    text = stringResource(id = R.string.parking_heatmap_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -205,14 +205,6 @@ fun StatsScreen(
                 }
             }
         }
-
-        item {
-            Text(
-                text = "Current version uses a soft visual hotspot layer. It can be upgraded to a true Google Maps heatmap tile layer.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
     }
 }
 
@@ -243,13 +235,13 @@ private fun MonthlySpendingChartCard(
         ) {
             Column {
                 Text(
-                    text = "Monthly Spending",
+                    text = stringResource(id = R.string.monthly_spending),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
 
                 Text(
-                    text = "€ %.2f total".format(totalSpent),
+                    text = stringResource(id = R.string.total_spent_format, totalSpent),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

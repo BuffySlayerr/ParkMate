@@ -1,5 +1,6 @@
 package com.example.parkmate.ui.components
 
+import com.example.parkmate.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -16,12 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.parkmate.data.local.entity.VehicleEntity
 import com.example.parkmate.data.model.VehicleType
-import com.example.parkmate.ui.theme.SecondaryContainerSoft
-import com.example.parkmate.ui.theme.SurfaceContainerLowest
 import com.example.parkmate.ui.theme.parkMateColors
 
 @Composable
@@ -34,6 +34,12 @@ fun VehicleChoiceCard(
         VehicleType.CAR -> Icons.Default.DirectionsCar
         VehicleType.MOTORCYCLE -> Icons.Default.TwoWheeler
         VehicleType.BICYCLE -> Icons.Default.DirectionsBike
+    }
+
+    val typeRes = when (vehicle.type) {
+        VehicleType.CAR -> R.string.car
+        VehicleType.MOTORCYCLE -> R.string.motorcycle
+        VehicleType.BICYCLE -> R.string.bicycle
     }
 
     Column(
@@ -54,9 +60,9 @@ fun VehicleChoiceCard(
                 .size(36.dp)
                 .background(
                     color = if (selected) {
-                        SecondaryContainerSoft
+                        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
                     } else {
-                        MaterialTheme.parkMateColors.secondaryContainerSoft
+                        MaterialTheme.colorScheme.secondaryContainer
                     },
                     shape = RoundedCornerShape(10.dp)
                 )
@@ -73,11 +79,7 @@ fun VehicleChoiceCard(
         )
 
         Text(
-            text = when (vehicle.type) {
-                VehicleType.CAR -> "PERSONAL CAR"
-                VehicleType.MOTORCYCLE -> "MOTORBIKE"
-                VehicleType.BICYCLE -> "BICYCLE"
-            },
+            text = stringResource(id = typeRes),
             style = MaterialTheme.typography.labelSmall,
             color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 2.dp),

@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -16,6 +17,7 @@ import com.example.parkmate.data.local.ParkMateDatabase
 import com.example.parkmate.data.repository.ParkingSessionRepository
 import com.example.parkmate.data.repository.SavedLocationRepository
 import com.example.parkmate.data.repository.VehicleRepository
+import com.example.parkmate.ui.activityrecognition.ActivityRecognitionScheduler
 import com.example.parkmate.ui.notifications.ExactAlarmPermissionHelper
 import com.example.parkmate.ui.notifications.NotificationChannels
 import com.example.parkmate.ui.notifications.NotificationNavigation
@@ -27,10 +29,13 @@ import com.example.parkmate.ui.viewmodel.StatsViewModel
 import com.example.parkmate.ui.viewmodel.StatsViewModelFactory
 import com.example.parkmate.ui.viewmodel.VehicleViewModel
 import com.example.parkmate.ui.viewmodel.VehicleViewModelFactory
+import com.example.parkmate.ui.widget.ParkingStatusWidgetUpdater
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
 
         val database = ParkMateDatabase.getDatabase(this)
 
@@ -45,6 +50,9 @@ class MainActivity : ComponentActivity() {
         val initialRoute = intent?.getStringExtra(NotificationNavigation.EXTRA_OPEN_ROUTE)
 
         NotificationChannels.create(this)
+
+        //per updatare i widget quando apro l'app
+        ParkingStatusWidgetUpdater.updateAllWidgets(this)
 
         setContent {
             val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -125,5 +133,11 @@ class MainActivity : ComponentActivity() {
                 initialRoute = initialRoute
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //aggiorna i widget quando app torna in primo piano
+        ParkingStatusWidgetUpdater.updateAllWidgets(this)
     }
 }

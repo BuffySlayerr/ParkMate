@@ -3,24 +3,32 @@ package com.example.parkmate.ui.widget
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 
 class ParkingStatusWidgetProvider : AppWidgetProvider() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        val pendingResult = goAsync()
+
+        ParkingStatusWidgetUpdater.updateAllWidgets(
+            context = context.applicationContext,
+            pendingResult = pendingResult
+        )
+    }
 
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        ParkingStatusWidgetUpdater.updateAllWidgets(context, appWidgetManager, appWidgetIds)
+        ParkingStatusWidgetUpdater.updateAllWidgets(
+            context = context.applicationContext,
+            appWidgetManager = appWidgetManager,
+            appWidgetIds = appWidgetIds
+        )
     }
 
     override fun onEnabled(context: Context) {
-        super.onEnabled(context)
-        ParkingStatusWidgetUpdater.updateAllWidgets(context)
-    }
-
-    override fun onReceive(context: Context, intent: android.content.Intent) {
-        super.onReceive(context, intent)
-        ParkingStatusWidgetUpdater.updateAllWidgets(context)
+        ParkingStatusWidgetUpdater.updateAllWidgets(context.applicationContext)
     }
 }

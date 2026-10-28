@@ -34,10 +34,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.rememberAsyncImagePainter
+import com.example.parkmate.R
 import com.example.parkmate.data.model.ParkingType
 import com.example.parkmate.ui.components.LocationChoiceCard
 import com.example.parkmate.ui.components.ParkingTypeChoiceCard
@@ -142,13 +144,13 @@ fun StartParkingScreen(
                     selectedLocationId = null
                     cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 16f)
 
-                    selectedMapLabel = "Loading address..."
+                    selectedMapLabel = context.getString(R.string.loading_address)
                     ReverseGeocodingUtils.reverseGeocode(
                         context = context,
                         latitude = latLng.latitude,
                         longitude = latLng.longitude
                     ) { result ->
-                        selectedMapLabel = result ?: "Current location"
+                        selectedMapLabel = result ?: context.getString(R.string.current_location)
                     }
                 }
             }
@@ -173,13 +175,13 @@ fun StartParkingScreen(
                 selectedLocationId = null
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 16f)
 
-                selectedMapLabel = "Loading address..."
+                selectedMapLabel = context.getString(R.string.loading_address)
                 ReverseGeocodingUtils.reverseGeocode(
                     context = context,
                     latitude = latLng.latitude,
                     longitude = latLng.longitude
                 ) { result ->
-                    selectedMapLabel = result ?: "Current location"
+                    selectedMapLabel = result ?: context.getString(R.string.current_location)
                 }
             }
         }
@@ -194,14 +196,14 @@ fun StartParkingScreen(
     ) {
         item {
             SectionTitle(
-                eyebrow = "START SESSION",
-                title = "New Parking"
+                eyebrow = stringResource(id = R.string.new_parking_eyebrow),
+                title = stringResource(id = R.string.new_parking_title)
             )
         }
 
         item {
             Text(
-                text = "1. Pick Vehicle",
+                text = "1. " + stringResource(id = R.string.pick_vehicle),
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -226,7 +228,7 @@ fun StartParkingScreen(
 
         item {
             Text(
-                text = "2. Parking Type",
+                text = "2. " + stringResource(id = R.string.parking_type),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(top = 6.dp)
             )
@@ -253,7 +255,7 @@ fun StartParkingScreen(
 
         item {
             Text(
-                text = "3. Saved Location",
+                text = "3. " + stringResource(id = R.string.saved_location),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(top = 6.dp)
             )
@@ -286,13 +288,13 @@ fun StartParkingScreen(
                 onClick = { useCurrentGpsLocation() },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Use current GPS location")
+                Text(stringResource(id = R.string.use_current_gps_location))
             }
         }
 
         item {
             Text(
-                text = "Or pick from map",
+                text = stringResource(id = R.string.or_pick_from_map),
                 style = MaterialTheme.typography.titleMedium
             )
         }
@@ -311,20 +313,20 @@ fun StartParkingScreen(
                 onMapClick = { latLng ->
                     selectedMapLocation = latLng
                     selectedLocationId = null
-                    selectedMapLabel = "Loading address..."
+                    selectedMapLabel = context.getString(R.string.loading_address)
                     ReverseGeocodingUtils.reverseGeocode(
                         context = context,
                         latitude = latLng.latitude,
                         longitude = latLng.longitude
                     ) { result ->
-                        selectedMapLabel = result ?: "Selected place"
+                        selectedMapLabel = result ?: context.getString(R.string.selected_place)
                     }
                 }
             ) {
                 selectedMapLocation?.let { selected ->
                     Marker(
                         state = MarkerState(position = selected),
-                        title = selectedMapLabel ?: "Selected place"
+                        title = selectedMapLabel ?: context.getString(R.string.selected_place)
                     )
                 }
             }
@@ -342,7 +344,7 @@ fun StartParkingScreen(
 
         item {
             Text(
-                text = "4. Photo",
+                text = "4. " + stringResource(id = R.string.photo),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(top = 6.dp)
             )
@@ -353,7 +355,12 @@ fun StartParkingScreen(
                 onClick = { launchCamera() },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (savedPhotoUriString == null) "Take photo" else "Retake photo")
+                Text(
+                    if (savedPhotoUriString == null) 
+                        stringResource(id = R.string.take_photo) 
+                    else 
+                        stringResource(id = R.string.retake_photo)
+                )
             }
         }
 
@@ -375,7 +382,7 @@ fun StartParkingScreen(
                 OutlinedTextField(
                     value = hourlyRate,
                     onValueChange = { hourlyRate = it },
-                    label = { Text("Hourly rate") },
+                    label = { Text(stringResource(id = R.string.hourly_rate)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -386,7 +393,7 @@ fun StartParkingScreen(
                 OutlinedTextField(
                     value = fixedTicketCost,
                     onValueChange = { fixedTicketCost = it },
-                    label = { Text("Ticket cost") },
+                    label = { Text(stringResource(id = R.string.ticket_cost)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -395,7 +402,7 @@ fun StartParkingScreen(
                 OutlinedTextField(
                     value = fixedTicketDurationMinutes,
                     onValueChange = { fixedTicketDurationMinutes = it },
-                    label = { Text("Validity in minutes") },
+                    label = { Text(stringResource(id = R.string.validity_minutes)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -423,14 +430,14 @@ fun StartParkingScreen(
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Add Note") },
+                label = { Text(stringResource(id = R.string.add_note)) },
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
             PrimaryCtaButton(
-                text = "Confirm & Start",
+                text = stringResource(id = R.string.confirm_start),
                 onClick = {
                     val vehicleId = selectedVehicleId ?: return@PrimaryCtaButton
 

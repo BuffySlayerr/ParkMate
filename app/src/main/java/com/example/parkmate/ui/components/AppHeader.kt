@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
@@ -18,22 +19,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.parkmate.R
-import com.example.parkmate.ui.theme.GradientEnd
-import com.example.parkmate.ui.theme.GradientStart
-import com.example.parkmate.ui.theme.SurfaceContainerLowest
 import com.example.parkmate.ui.theme.parkMateColors
 
 @Composable
 fun AppHeader(
-    title: String = "PARKMATE",
+    title: String = stringResource(id = R.string.app_name),
     onNotificationsClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.parkMateColors.surfaceContainerLowest)
+            .statusBarsPadding() // Aggiunge lo spazio per la barra di stato ma mantiene il colore di sfondo
             .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -48,7 +48,7 @@ fun AppHeader(
             )
 
             Text(
-                text = title,
+                text = title.uppercase(),
                 style = MaterialTheme.typography.titleLarge.copy(
                     brush = Brush.linearGradient(
                         colors = listOf(
@@ -58,18 +58,6 @@ fun AppHeader(
                     )
                 ),
                 modifier = Modifier.padding(start = 10.dp)
-            )
-        }
-
-        IconButton(
-            onClick = onNotificationsClick,
-            modifier = Modifier.size(40.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Notifications,
-                contentDescription = "Notifications",
-                modifier = Modifier.size(22.dp),
-                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }

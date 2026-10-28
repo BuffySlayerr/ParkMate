@@ -16,13 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.example.parkmate.ui.navigation.BottomNavItem
-import com.example.parkmate.ui.theme.SecondaryContainerSoft
-import com.example.parkmate.ui.theme.SurfaceContainerLowest
 import com.example.parkmate.ui.theme.labelExtraSmall
 import com.example.parkmate.ui.theme.parkMateColors
 
@@ -43,6 +42,8 @@ fun BottomBar(
         items.forEach { item ->
             val selected =
                 currentDestination?.hierarchy?.any { it.route == item.route } == true
+            
+            val label = stringResource(id = item.labelRes)
 
             Column(
                 modifier = Modifier
@@ -58,7 +59,7 @@ fun BottomBar(
             ) {
                 Icon(
                     imageVector = item.icon,
-                    contentDescription = item.label,
+                    contentDescription = label,
                     modifier = Modifier
                         .size(20.dp),
                     tint = if (selected) {
@@ -69,7 +70,7 @@ fun BottomBar(
                 )
 
                 Text(
-                    text = item.label,
+                    text = label,
                     style = MaterialTheme.typography.labelExtraSmall,
                     color = if (selected) {
                         MaterialTheme.colorScheme.onSurface

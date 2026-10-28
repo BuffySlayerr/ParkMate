@@ -31,9 +31,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.example.parkmate.R
 import com.example.parkmate.data.local.entity.ParkingSessionEntity
 import com.example.parkmate.data.local.entity.VehicleEntity
 import com.example.parkmate.data.model.ParkingType
@@ -56,7 +58,7 @@ fun ParkingSessionDetailsSheet(
 ) {
     val now = System.currentTimeMillis()
 
-    val vehicleName = vehicle?.name ?: "Vehicle"
+    val vehicleName = vehicle?.name ?: stringResource(id = R.string.vehicle)
     val vehicleIcon = when (vehicle?.type) {
         VehicleType.CAR -> Icons.Default.DirectionsCar
         VehicleType.MOTORCYCLE -> Icons.Default.TwoWheeler
@@ -69,12 +71,12 @@ fun ParkingSessionDetailsSheet(
     val endText = session.endTimeMillis?.let { dateTimeFormatter.format(Date(it)) }
     val expiryText = session.fixedTicketExpiryMillis?.let { dateTimeFormatter.format(Date(it)) }
 
-    val statusText = if (session.isActive) "ACTIVE" else "COMPLETED"
+    val statusText = if (session.isActive) stringResource(id = R.string.active_banner) else stringResource(id = R.string.completed)
 
     val parkingTypeText = when (session.parkingType) {
-        ParkingType.FREE -> "Free"
-        ParkingType.HOURLY_PAID -> "Hourly"
-        ParkingType.FIXED_TICKET -> "Fixed ticket"
+        ParkingType.FREE -> stringResource(id = R.string.free)
+        ParkingType.HOURLY_PAID -> stringResource(id = R.string.hourly)
+        ParkingType.FIXED_TICKET -> stringResource(id = R.string.ticket)
     }
 
     val totalDuration = if (session.isActive) {
@@ -85,15 +87,15 @@ fun ParkingSessionDetailsSheet(
     }
 
     val pricingText = when (session.parkingType) {
-        ParkingType.FREE -> "No cost"
-        ParkingType.HOURLY_PAID -> session.hourlyRate?.let { "€ %.2f / h".format(it) } ?: "-"
-        ParkingType.FIXED_TICKET -> session.fixedTicketCost?.let { "€ %.2f fixed".format(it) } ?: "-"
+        ParkingType.FREE -> stringResource(id = R.string.no_cost)
+        ParkingType.HOURLY_PAID -> session.hourlyRate?.let { stringResource(id = R.string.hourly_rate_format, it) } ?: "-"
+        ParkingType.FIXED_TICKET -> session.fixedTicketCost?.let { stringResource(id = R.string.fixed_cost_format, it) } ?: "-"
     }
 
     val currentOrFinalCost = if (session.isActive) {
-        "€ %.2f".format(calculateSessionCostNow(session, now))
+        stringResource(id = R.string.cost_format, calculateSessionCostNow(session, now))
     } else {
-        session.finalCost?.let { "€ %.2f".format(it) } ?: "€ 0.00"
+        session.finalCost?.let { stringResource(id = R.string.cost_format, it) } ?: stringResource(id = R.string.cost_format, 0.0)
     }
 
     val countdownText = if (session.parkingType == ParkingType.FIXED_TICKET) {
@@ -142,7 +144,7 @@ fun ParkingSessionDetailsSheet(
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        text = session.locationName ?: "Unknown location",
+                        text = session.locationName ?: stringResource(id = R.string.unknown_location),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -156,14 +158,15 @@ fun ParkingSessionDetailsSheet(
                             shape = RoundedCornerShape(10.dp)
                         )
                         .padding(horizontal = 10.dp, vertical = 6.dp),
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
+                    //color = if (session.isActive) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurface
                 )
             }
 
             session.photoUri?.takeIf { it.isNotBlank() }?.let { photoUri ->
                 Image(
                     painter = rememberAsyncImagePainter(photoUri),
-                    contentDescription = "Parking session photo",
+                    contentDescription = stringResource(id = R.string.photo),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(190.dp)
@@ -176,23 +179,23 @@ fun ParkingSessionDetailsSheet(
             }
 
             DetailsSection(
-                title = "Session details",
+                title = stringResource(id = R.string.session_details),
                 rows = listOfNotNull(
-                    "Parking type" to parkingTypeText,
-                    "Start" to startText,
-                    "End" to (endText ?: if (session.isActive) "Still active" else "-"),
+                    stringResource(id = R.string.parking_type) to parkingTypeText,
+                    stringResource(id = R.string.start) to startText,
+                    stringResource(id = R.string.end) to (endText ?: if (session.isActive) stringResource(id = R.string.still_active) else "-"),
                     if (session.parkingType == ParkingType.FIXED_TICKET) {
-                        expiryText?.let { "Expiry" to it }
+                        expiryText?.let { stringResource(id = R.string.expiry) to it }
                     } else null,
                     if (session.parkingType == ParkingType.FIXED_TICKET) {
-                        countdownText?.let { "Countdown" to it }
+                        countdownText?.let { stringResource(id = R.string.countdown) to it }
                     } else null,
-                    "Duration" to totalDuration,
-                    "Pricing" to pricingText,
+                    stringResource(id = R.string.duration) to totalDuration,
+                    stringResource(id = R.string.pricing) to pricingText,
                     if (session.isActive) {
-                        "Current cost" to currentOrFinalCost
+                        stringResource(id = R.string.current_cost) to currentOrFinalCost
                     } else {
-                        "Final cost" to currentOrFinalCost
+                        stringResource(id = R.string.final_cost) to currentOrFinalCost
                     }
                 )
             )
@@ -202,7 +205,7 @@ fun ParkingSessionDetailsSheet(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Note",
+                        text = stringResource(id = R.string.note),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -235,7 +238,7 @@ fun ParkingSessionDetailsSheet(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text("Close")
+                Text(stringResource(id = R.string.close))
             }
 
             Spacer(modifier = Modifier.height(12.dp))

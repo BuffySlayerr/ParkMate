@@ -63,6 +63,7 @@ class ParkingSessionRepository(
             )
         }
 
+        // Avvia gli aggiornamenti ricorrenti per il widget
         ParkingStatusWidgetUpdater.updateAllWidgets(context)
     }
 
@@ -92,7 +93,9 @@ class ParkingSessionRepository(
 
         vehicleDao.updateParkedState(session.vehicleId, false)
 
-        val stillHasActiveSessions = parkingSessionDao.getActiveSessionsOnce().isNotEmpty()
+        val activeSessions = parkingSessionDao.getActiveSessionsOnce()
+        val stillHasActiveSessions = activeSessions.isNotEmpty()
+        
         if (!stillHasActiveSessions) {
             NotificationScheduler.cancelParkingReminder(context)
         }

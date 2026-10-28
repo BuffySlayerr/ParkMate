@@ -1,6 +1,7 @@
 package com.example.parkmate.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DirectionsBike
@@ -40,14 +43,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.parkmate.R
 import com.example.parkmate.data.local.entity.VehicleEntity
 import com.example.parkmate.data.model.VehicleType
 import com.example.parkmate.ui.components.SectionTitle
-import com.example.parkmate.ui.theme.SecondaryContainerSoft
-import com.example.parkmate.ui.theme.SurfaceContainerLowest
 import com.example.parkmate.ui.theme.parkMateColors
 import com.example.parkmate.ui.viewmodel.VehicleViewModel
 
@@ -65,6 +69,7 @@ fun VehiclesScreen(
     var selectedType by remember { mutableStateOf(VehicleType.CAR) }
 
     androidx.compose.material3.Scaffold(
+        contentWindowInsets = WindowInsets(0.dp), // per evitare che con EdgeToEdge si aggiungano margini
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -78,7 +83,7 @@ fun VehiclesScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add vehicle"
+                    contentDescription = stringResource(id = R.string.add_vehicle)
                 )
             }
         }
@@ -91,13 +96,13 @@ fun VehiclesScreen(
                 start = 20.dp,
                 top = 20.dp,
                 end = 20.dp,
-                bottom = 110.dp
+                bottom = 88.dp
             ),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
                 SectionTitle(
-                    title = "My Garage",
+                    title = stringResource(id = R.string.my_garage),
                 )
             }
 
@@ -131,7 +136,10 @@ fun VehiclesScreen(
             ) {
                 item {
                     Text(
-                        text = if (editingVehicle == null) "New Vehicle" else "Edit Vehicle",
+                        text = if (editingVehicle == null) 
+                            stringResource(id = R.string.new_vehicle) 
+                        else 
+                            stringResource(id = R.string.edit_vehicle),
                         style = MaterialTheme.typography.headlineMedium
                     )
                 }
@@ -140,14 +148,14 @@ fun VehiclesScreen(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Vehicle name") },
+                        label = { Text(stringResource(id = R.string.vehicle_name)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
                 item {
                     Text(
-                        text = "Vehicle type",
+                        text = stringResource(id = R.string.vehicle_type),
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -188,8 +196,16 @@ fun VehiclesScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(if (editingVehicle == null) "Save Vehicle" else "Update Vehicle")
+                        Text(
+                            if (editingVehicle == null) 
+                                stringResource(id = R.string.save_vehicle) 
+                            else 
+                                stringResource(id = R.string.update_vehicle)
+                        )
                     }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
@@ -202,10 +218,10 @@ private fun VehicleTypeWideChip(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    val label = when (type) {
-        VehicleType.CAR -> "Car"
-        VehicleType.MOTORCYCLE -> "Motorcycle"
-        VehicleType.BICYCLE -> "Bicycle"
+    val labelRes = when (type) {
+        VehicleType.CAR -> R.string.car
+        VehicleType.MOTORCYCLE -> R.string.motorcycle
+        VehicleType.BICYCLE -> R.string.bicycle
     }
 
     Button(
@@ -225,7 +241,7 @@ private fun VehicleTypeWideChip(
         ),
         shape = RoundedCornerShape(14.dp)
     ) {
-        Text(label)
+        Text(stringResource(id = labelRes))
     }
 }
 
@@ -243,10 +259,10 @@ private fun VehicleGarageCard(
         VehicleType.BICYCLE -> Icons.Default.DirectionsBike
     }
 
-    val typeLabel = when (vehicle.type) {
-        VehicleType.CAR -> "CAR"
-        VehicleType.MOTORCYCLE -> "MOTORCYCLE"
-        VehicleType.BICYCLE -> "BICYCLE"
+    val typeRes = when (vehicle.type) {
+        VehicleType.CAR -> R.string.car
+        VehicleType.MOTORCYCLE -> R.string.motorcycle
+        VehicleType.BICYCLE -> R.string.bicycle
     }
 
     Card(
@@ -264,11 +280,11 @@ private fun VehicleGarageCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.ui.Alignment.Top
+                verticalAlignment = Alignment.Top
             ) {
                 Row(
                     modifier = Modifier.weight(1f),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = icon,
@@ -292,11 +308,11 @@ private fun VehicleGarageCard(
                             text = vehicle.name,
                             style = MaterialTheme.typography.titleMedium,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                         )
 
                         Text(
-                            text = typeLabel,
+                            text = stringResource(id = typeRes).uppercase(),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 2.dp),
@@ -312,25 +328,37 @@ private fun VehicleGarageCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Vehicle actions",
-                            modifier = Modifier.size(20.dp)
+                            contentDescription = stringResource(id = R.string.vehicle_actions),
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     DropdownMenu(
                         expanded = menuExpanded,
                         onDismissRequest = { menuExpanded = false },
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 4.dp
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Edit") },
+                            text = { 
+                                Text(
+                                    stringResource(id = R.string.edit),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                ) 
+                            },
                             onClick = {
                                 menuExpanded = false
                                 onEdit()
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Delete") },
+                            text = { 
+                                Text(
+                                    stringResource(id = R.string.delete),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                ) 
+                            },
                             onClick = {
                                 menuExpanded = false
                                 onDelete()
@@ -344,7 +372,7 @@ private fun VehicleGarageCard(
 
             if (vehicle.isParked) {
                 Text(
-                    text = "PARKED",
+                    text = stringResource(id = R.string.parked),
                     modifier = Modifier
                         .background(
                             color = MaterialTheme.colorScheme.primary,
@@ -357,13 +385,14 @@ private fun VehicleGarageCard(
                 )
             } else {
                 Text(
-                    text = "NOT PARKED",
+                    text = stringResource(id = R.string.not_parked),
                     modifier = Modifier
                         .background(
                             color = MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(8.dp)
                         )
                         .padding(horizontal = 10.dp, vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 1
                 )

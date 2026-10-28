@@ -1,6 +1,6 @@
 package com.example.parkmate.ui.components
 
-import android.R
+import com.example.parkmate.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,12 +17,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.parkmate.data.model.ParkingType
 import com.example.parkmate.ui.theme.OutlineVariantSoft
-import com.example.parkmate.ui.theme.SurfaceContainerLowest
 import com.example.parkmate.ui.theme.parkMateColors
+
 
 @Composable
 fun ParkingTypeChoiceCard(
@@ -36,17 +37,18 @@ fun ParkingTypeChoiceCard(
         ParkingType.FIXED_TICKET -> Icons.Default.ConfirmationNumber
     }
 
-    val title = when (parkingType) {
-        ParkingType.FREE -> "Free"
-        ParkingType.HOURLY_PAID -> "Hourly"
-        ParkingType.FIXED_TICKET -> "Ticket"
+    val titleRes = when (parkingType) {
+        ParkingType.FREE -> R.string.free
+        ParkingType.HOURLY_PAID -> R.string.hourly
+        ParkingType.FIXED_TICKET -> R.string.ticket
     }
-
+    /*
     val subtitle = when (parkingType) {
-        ParkingType.FREE -> "Free zone"
-        ParkingType.HOURLY_PAID -> "Pay by hour"
-        ParkingType.FIXED_TICKET -> "Fixed pass"
+        ParkingType.FREE -> R.string.free_parking_format
+        ParkingType.HOURLY_PAID -> R.string.hourly_parking_format
+        ParkingType.FIXED_TICKET -> R.string.fixed_ticket_format
     }
+    */
 
     Column(
         modifier = Modifier
@@ -74,12 +76,12 @@ fun ParkingTypeChoiceCard(
         )
 
         Text(
-            text = title,
+            text = stringResource(id = titleRes),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 12.dp),
             maxLines = 1
         )
-
+        /*
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
@@ -88,5 +90,6 @@ fun ParkingTypeChoiceCard(
             modifier = Modifier.padding(top = 4.dp),
             maxLines = 2
         )
+        */
     }
 }

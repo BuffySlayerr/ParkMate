@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -46,16 +47,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.example.parkmate.R
 import com.example.parkmate.data.local.entity.SavedLocationEntity
 import com.example.parkmate.data.model.LocationIconType
 import com.example.parkmate.ui.components.LocationIconPicker
 import com.example.parkmate.ui.components.SectionTitle
 import com.example.parkmate.ui.components.locationIconFor
-import com.example.parkmate.ui.theme.SecondaryContainerSoft
-import com.example.parkmate.ui.theme.SurfaceContainerLowest
 import com.example.parkmate.ui.theme.parkMateColors
 import com.example.parkmate.ui.viewmodel.SavedLocationViewModel
 import com.example.parkmate.ui.util.ReverseGeocodingUtils
@@ -121,7 +122,7 @@ fun SavedLocationsScreen(
                         latitude = latLng.latitude,
                         longitude = latLng.longitude
                     ) { result ->
-                        address = result ?: "Current location"
+                        address = result ?: context.getString(R.string.current_location)
                     }
                 }
             }
@@ -148,13 +149,14 @@ fun SavedLocationsScreen(
                     latitude = latLng.latitude,
                     longitude = latLng.longitude
                 ) { result ->
-                    address = result ?: "Current location"
+                    address = result ?: context.getString(R.string.current_location)
                 }
             }
         }
     }
 
     androidx.compose.material3.Scaffold(
+        contentWindowInsets = WindowInsets(0.dp),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -170,7 +172,7 @@ fun SavedLocationsScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add location"
+                    contentDescription = stringResource(id = R.string.add_location)
                 )
             }
         }
@@ -183,14 +185,13 @@ fun SavedLocationsScreen(
                 start = 20.dp,
                 top = 20.dp,
                 end = 20.dp,
-                bottom = 110.dp
+                bottom = 88.dp
             ),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
                 SectionTitle(
-                    title = "Saved Locations",
-
+                    title = stringResource(id = R.string.saved_locations),
                 )
             }
 
@@ -234,7 +235,10 @@ fun SavedLocationsScreen(
             ) {
                 item {
                     Text(
-                        text = if (editingLocation == null) "New Location" else "Edit Location",
+                        text = if (editingLocation == null) 
+                            stringResource(id = R.string.new_location) 
+                        else 
+                            stringResource(id = R.string.edit_location),
                         style = MaterialTheme.typography.headlineMedium
                     )
                 }
@@ -243,7 +247,7 @@ fun SavedLocationsScreen(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Location name") },
+                        label = { Text(stringResource(id = R.string.location_name)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -252,14 +256,14 @@ fun SavedLocationsScreen(
                     OutlinedTextField(
                         value = address,
                         onValueChange = { address = it },
-                        label = { Text("Street / address") },
+                        label = { Text(stringResource(id = R.string.street_address)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
                 item {
                     Text(
-                        text = "Choose icon",
+                        text = stringResource(id = R.string.choose_icon),
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -276,7 +280,7 @@ fun SavedLocationsScreen(
                         onClick = { useCurrentGpsLocation() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Use current GPS location")
+                        Text(stringResource(id = R.string.use_current_gps_location))
                     }
                 }
 
@@ -298,14 +302,14 @@ fun SavedLocationsScreen(
                                 latitude = latLng.latitude,
                                 longitude = latLng.longitude
                             ) { result ->
-                                address = result ?: "Selected place"
+                                address = result ?: context.getString(R.string.selected_place)
                             }
                         }
                     ) {
                         selectedMapLocation?.let { selected ->
                             Marker(
                                 state = MarkerState(position = selected),
-                                title = if (name.isBlank()) "Selected location" else name
+                                title = name.ifBlank { context.getString(R.string.selected_location) }
                             )
                         }
                     }
@@ -347,10 +351,17 @@ fun SavedLocationsScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(if (editingLocation == null) "Save Location" else "Update Location")
+                        Text(
+                            if (editingLocation == null) 
+                                stringResource(id = R.string.save_location) 
+                            else 
+                                stringResource(id = R.string.update_location)
+                        )
                     }
                 }
-
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
             }
         }
     }
@@ -401,7 +412,7 @@ private fun SavedLocationMenuCard(
                     text = location.name,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Text(
@@ -430,25 +441,37 @@ private fun SavedLocationMenuCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Location actions",
-                            modifier = Modifier.size(20.dp)
+                            contentDescription = stringResource(id = R.string.location_actions),
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     DropdownMenu(
                         expanded = menuExpanded,
                         onDismissRequest = { menuExpanded = false },
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 4.dp
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Edit") },
+                            text = { 
+                                Text(
+                                    stringResource(id = R.string.edit),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            },
                             onClick = {
                                 menuExpanded = false
                                 onEdit()
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Delete") },
+                            text = { 
+                                Text(
+                                    stringResource(id = R.string.delete),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            },
                             onClick = {
                                 menuExpanded = false
                                 onDelete()

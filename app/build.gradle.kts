@@ -81,6 +81,9 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:6.12.1")
     implementation("com.google.maps.android:android-maps-utils:3.19.0")
 
+    //activity recognition
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
     add("ksp", libs.androidx.room.compiler.get())
 
     testImplementation(libs.junit)
