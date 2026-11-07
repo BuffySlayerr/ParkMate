@@ -139,4 +139,9 @@
     <string name="expired">Expired</string>
     <string name="no_expiry">No expiry set</string>
     <string name="time_left_format">%1$s left</string>
+
+    <string name="ticket_expiring_soon_title">Ticket expiring soon</string>
+    <string name="ticket_expiring_soon_text">Your ticket at %1$s is about to expire.</string>
+    <string name="ticket_expired_title">Ticket expired</string>
+    <string name="ticket_expired_text">Your fixed-ticket parking at %1$s has expired.</string>
 </resources>

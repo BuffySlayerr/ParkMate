@@ -4,8 +4,12 @@ import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
+import com.example.parkmate.R
 import java.util.Locale
 
+/*
+Utility for converting GPS coordinates into readable addresses.
+*/
 object ReverseGeocodingUtils {
 
     fun reverseGeocode(
@@ -28,7 +32,7 @@ object ReverseGeocodingUtils {
                 1,
                 object : Geocoder.GeocodeListener {
                     override fun onGeocode(addresses: MutableList<Address>) {
-                        onResult(addresses.firstOrNull()?.toReadableLabel())
+                        onResult(addresses.firstOrNull()?.toReadableLabel(context))
                     }
 
                     override fun onError(errorMessage: String?) {
@@ -41,14 +45,18 @@ object ReverseGeocodingUtils {
             runCatching {
                 geocoder.getFromLocation(latitude, longitude, 1)
             }.onSuccess { addresses ->
-                onResult(addresses?.firstOrNull()?.toReadableLabel())
+                onResult(addresses?.firstOrNull()?.toReadableLabel(context))
             }.onFailure {
                 onResult(null)
             }
         }
     }
 
-    private fun Address.toReadableLabel(): String {
+    /*
+    Formats an Address object into a single line string.
+    Fallback to localized "Selected place" if no specific address parts are found.
+    */
+    private fun Address.toReadableLabel(context: Context): String {
         val parts = listOfNotNull(
             thoroughfare,
             subThoroughfare,
@@ -61,7 +69,7 @@ object ReverseGeocodingUtils {
             !featureName.isNullOrBlank() -> featureName
             !locality.isNullOrBlank() -> locality
             !adminArea.isNullOrBlank() -> adminArea
-            else -> "Selected place"
+            else -> context.getString(R.string.selected_place)
         }
     }
 }

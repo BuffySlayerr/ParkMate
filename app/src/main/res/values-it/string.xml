@@ -139,4 +139,9 @@
     <string name="expired">Scaduto</string>
     <string name="no_expiry">Nessuna scadenza impostata</string>
     <string name="time_left_format">%1$s rimanenti</string>
+
+    <string name="ticket_expiring_soon_title">Ticket in scadenza</string>
+    <string name="ticket_expiring_soon_text">Il tuo ticket a %1$s sta per scadere.</string>
+    <string name="ticket_expired_title">Ticket scaduto</string>
+    <string name="ticket_expired_text">Il tuo parcheggio a %1$s è scaduto.</string>
 </resources>

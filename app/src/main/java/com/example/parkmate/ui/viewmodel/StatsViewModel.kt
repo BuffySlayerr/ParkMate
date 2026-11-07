@@ -17,12 +17,16 @@ import java.text.DateFormatSymbols
 import java.util.Calendar
 import java.util.Locale
 
+/*
+ViewModel for the Stats screen.
+*/
 class StatsViewModel(
     parkingSessionRepository: ParkingSessionRepository,
     vehicleRepository: VehicleRepository,
     savedLocationRepository: SavedLocationRepository
 ) : ViewModel() {
 
+    // Main UI state that combines info from all repositories
     val uiState: StateFlow<StatsUiState> = combine(
         parkingSessionRepository.getAllSessions(),
         parkingSessionRepository.getActiveSessions(),
@@ -48,6 +52,8 @@ class StatsViewModel(
         savedLocationsCount: Int
     ): StatsUiState {
         val completedSessions = sessions.filter { !it.isActive }
+        
+        // REAL LOGIC: Sum of all final costs from completed sessions
         val totalSpent = completedSessions.sumOf { it.finalCost ?: 0.0 }
 
         val currentMonthSpent = completedSessions
@@ -89,18 +95,23 @@ class StatsViewModel(
         )
     }
 
+    /*
+    Logic to build the bar chart data.
+    */
     private fun buildLastSixMonthsSpending(
         completedSessions: List<ParkingSessionEntity>
     ): List<MonthlySpendUi> {
         val calendar = Calendar.getInstance()
         val monthKeys = mutableListOf<Pair<Int, Int>>()
 
+        // Generate the last 6 months keys (Year + Month index)
         repeat(6) { index ->
             val temp = calendar.clone() as Calendar
             temp.add(Calendar.MONTH, -(5 - index))
             monthKeys.add(temp.get(Calendar.YEAR) to temp.get(Calendar.MONTH))
         }
 
+        // REAL LOGIC: Calculate total spent for each of the last 6 months
         return monthKeys.map { (year, month) ->
             val total = completedSessions
                 .filter { session ->
@@ -115,13 +126,13 @@ class StatsViewModel(
             )
         }
     }
-
     private fun buildHeatmapPoints(
         sessions: List<ParkingSessionEntity>
     ): List<HeatmapPointUi> {
         if (sessions.isEmpty()) return emptyList()
 
         val grouped = sessions.groupBy {
+            // Grid-based clustering
             val latBucket = (it.latitude * 2000).toInt()
             val lonBucket = (it.longitude * 2000).toInt()
             latBucket to lonBucket
