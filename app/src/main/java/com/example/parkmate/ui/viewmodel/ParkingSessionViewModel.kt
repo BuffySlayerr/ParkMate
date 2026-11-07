@@ -19,6 +19,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/*
+Main ViewModel for managing parking sessions.
+It provides real-time data to the UI,acts as a bridge between the View and the Repository.
+*/
 class ParkingSessionViewModel(
     private val parkingSessionRepository: ParkingSessionRepository,
     vehicleRepository: VehicleRepository,
@@ -60,6 +64,9 @@ class ParkingSessionViewModel(
     private val _manualSelection = MutableStateFlow<ManualMapSelection?>(null)
     val manualSelection = _manualSelection.asStateFlow()
 
+    // This StateFlow updates every second.
+    // UI components (like timers and cost counters) collect this to redraw 
+    // without needing complex refresh logic in the Repository.
     private val _now = MutableStateFlow(System.currentTimeMillis())
     val now: StateFlow<Long> = _now.asStateFlow()
 
@@ -67,7 +74,7 @@ class ParkingSessionViewModel(
         viewModelScope.launch {
             while (true) {
                 _now.value = System.currentTimeMillis()
-                delay(1_000)
+                delay(1_000) // Update every second
             }
         }
     }
@@ -84,6 +91,9 @@ class ParkingSessionViewModel(
         _manualSelection.value = null
     }
 
+    /*
+    Logic to start a session from a raw coordinate (e.g., tap on map).
+    */
     fun startSessionFromCoordinates(
         vehicleId: Long,
         parkingType: ParkingType,
@@ -115,6 +125,9 @@ class ParkingSessionViewModel(
         }
     }
 
+    /*
+    logic to start a session using a pre-saved location.
+    */
     fun startSessionFromSavedLocation(
         vehicleId: Long,
         parkingType: ParkingType,
@@ -152,6 +165,9 @@ class ParkingSessionViewModel(
     }
 }
 
+/*
+provide Repositories to the ViewModel during initialization.
+*/
 class ParkingSessionViewModelFactory(
     private val parkingSessionRepository: ParkingSessionRepository,
     private val vehicleRepository: VehicleRepository,

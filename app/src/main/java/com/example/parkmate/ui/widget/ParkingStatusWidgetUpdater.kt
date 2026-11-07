@@ -20,10 +20,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/*
+Helper object to handle the logic for updating the app widgets.
+It builds the UI for the widget using RemoteViews and fetches data from the database.
+*/
 object ParkingStatusWidgetUpdater {
 
     const val ACTION_REFRESH_WIDGET = "com.example.parkmate.ACTION_REFRESH_WIDGET"
 
+    /*
+    Finds all active widget instances and triggers an update for each.
+    */
     fun updateAllWidgets(context: Context) {
         val appContext = context.applicationContext
         val appWidgetManager = AppWidgetManager.getInstance(appContext)
@@ -37,6 +44,10 @@ object ParkingStatusWidgetUpdater {
         )
     }
 
+    /*
+    Specialized update call for asynchronous BroadcastReceiver execution.
+    Finishing the pendingResult ensures the system doesn't kill the process prematurely.
+    */
     fun updateAllWidgets(
         context: Context,
         pendingResult: BroadcastReceiver.PendingResult
@@ -52,6 +63,9 @@ object ParkingStatusWidgetUpdater {
         }
     }
 
+    /*
+    Core update logic: fetches the active session from DB and updates each widget ID.
+    */
     fun updateAllWidgets(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -63,6 +77,7 @@ object ParkingStatusWidgetUpdater {
 
         CoroutineScope(Dispatchers.IO).launch {
             val db = ParkMateDatabase.getDatabase(appContext)
+            // Only show the most recent active session on the widget
             val activeSession = db.parkingSessionDao()
                 .getActiveSessionsOnce()
                 .firstOrNull()
@@ -104,12 +119,17 @@ object ParkingStatusWidgetUpdater {
         }
     }
 
+    /*
+    Constructs the RemoteViews object which describes the widget UI.
+    RemoteViews is necessary because widgets run in the home screen process, not our app process.
+    */
     private fun buildRemoteViews(
         context: Context,
         activeSession: ParkingSessionEntity?
     ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_parking_status)
 
+        // Setup Intent to open the main app when the widget is clicked
         val openAppIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -121,6 +141,7 @@ object ParkingStatusWidgetUpdater {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        // Setup Intent to manually refresh the widget
         val refreshIntent = Intent(context, ParkingStatusWidgetProvider::class.java).apply {
             action = ACTION_REFRESH_WIDGET
         }
@@ -136,6 +157,7 @@ object ParkingStatusWidgetUpdater {
         views.setOnClickPendingIntent(R.id.widget_open_button, openAppPendingIntent)
         views.setOnClickPendingIntent(R.id.widget_refresh_button, refreshPendingIntent)
 
+        // Handle the empty state (no active parking)
         if (activeSession == null) {
             views.setTextViewText(
                 R.id.widget_title,
@@ -160,10 +182,12 @@ object ParkingStatusWidgetUpdater {
             return views
         }
 
+        // Handle the active state
         val now = System.currentTimeMillis()
         val locationName = activeSession.locationName
             ?: context.getString(R.string.parking_active)
 
+        // Calculate dynamic strings based on parking rules
         val subtitle = when (activeSession.parkingType) {
             ParkingType.FREE -> {
                 val elapsed = formatDurationCompact(now - activeSession.startTimeMillis)

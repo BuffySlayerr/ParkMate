@@ -32,17 +32,24 @@ import com.example.parkmate.ui.util.calculateSessionCostNow
 import com.example.parkmate.ui.util.formatCountdown
 import com.example.parkmate.ui.util.formatDurationCompact
 
+/*
+Card displayed on the map screen showing the current active parking session.
+It provides real-time updates for duration and cost.
+*/
 @Composable
 fun ActiveParkingCard(
     session: ParkingSessionEntity,
-    nowMillis: Long,
+    nowMillis: Long, // Updated periodically from the ViewModel to refresh the UI
     onEndSession: () -> Unit,
     onViewDetails: () -> Unit
 ) {
     val context = LocalContext.current
+    
+    // Calculate how long the user has been parked
     val elapsedMillis = nowMillis - session.startTimeMillis
     val elapsedText = formatDurationCompact(elapsedMillis)
 
+    // Dynamic info based on parking type (Free, Hourly, or Fixed Ticket)
     val subtitle = when (session.parkingType) {
         ParkingType.FREE -> stringResource(id = R.string.started_ago_format, elapsedText)
 
@@ -52,6 +59,7 @@ fun ActiveParkingCard(
         }
 
         ParkingType.FIXED_TICKET -> {
+            // Show countdown to ticket expiration
             val countdown = formatCountdown(context, session.fixedTicketExpiryMillis, nowMillis)
             stringResource(id = R.string.ticket_active_countdown_format, countdown)
         }
@@ -70,6 +78,7 @@ fun ActiveParkingCard(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Parking Icon with background pill
             Icon(
                 imageVector = Icons.Default.LocalParking,
                 contentDescription = null,
@@ -105,6 +114,7 @@ fun ActiveParkingCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            // Primary action to stop the current session
             Button(
                 onClick = onEndSession,
                 modifier = Modifier
@@ -123,6 +133,7 @@ fun ActiveParkingCard(
                 )
             }
 
+            // Secondary action to see more details (photo, notes, pricing rules)
             Button(
                 onClick = onViewDetails,
                 modifier = Modifier

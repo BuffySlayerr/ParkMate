@@ -21,15 +21,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/*
+Receiver that handles Activity Recognition transitions from Google Play Services.
+It detects when a user stops driving/cycling and starts walking (potential parking)
+or moves away from a parked vehicle.
+*/
 class ActivityTransitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        // Validation: ensure the intent actually contains activity transition data
         if (!ActivityTransitionResult.hasResult(intent)) return
         if (!hasNotificationPermission(context)) return
 
         val result = ActivityTransitionResult.extractResult(intent) ?: return
         val events = result.transitionEvents
 
+        // Logic to detect if the user has stopped a high-speed activity
         val hasVehicleExit = events.any { event ->
             event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT &&
                     (
@@ -38,6 +45,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                             )
         }
 
+        // Logic to detect if the user has started moving on foot
         val hasWalkingEnter = events.any { event ->
             event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER &&
                     (
@@ -48,6 +56,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
 
         if (!hasVehicleExit && !hasWalkingEnter) return
 
+        // check DB state to decide which message to show
         CoroutineScope(Dispatchers.IO).launch {
             val db = ParkMateDatabase.getDatabase(context)
             val activeSessions = db.parkingSessionDao().getActiveSessionsOnce()
@@ -59,8 +68,7 @@ class ActivityTransitionReceiver : BroadcastReceiver() {
                     title = context.getString(R.string.activity_recognition_new_park_title),
                     message = context.getString(R.string.activity_recognition_new_park_message)
                 )
-            } else {
-                showNotification(
+            } else {                showNotification(
                     context = context,
                     notificationId = 7102,
                     title = context.getString(R.string.activity_recognition_end_park_title),

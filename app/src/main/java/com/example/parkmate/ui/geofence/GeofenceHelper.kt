@@ -14,6 +14,11 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 
+/*
+Helper object to manage Google Play Services Geofencing.
+Geofencing allows the app to receive callbacks when the device enters or exits
+specific geographical boundaries.
+*/
 object GeofenceHelper {
 
     private const val TAG = "GeofenceHelper"
@@ -22,8 +27,9 @@ object GeofenceHelper {
         LocationServices.getGeofencingClient(context)
 
     /**
-     * Controlla se l'app ha i permessi necessari per il Geofencing.
-     * Nota: Su Android 10+ è necessario ACCESS_BACKGROUND_LOCATION per i geofence in background.
+     * Checks if the app has the required location permissions for Geofencing.
+     * Note: Starting from Android 10 (API 29), ACCESS_BACKGROUND_LOCATION is strictly required
+     * to trigger geofences while the app is not in the foreground.
      */
     fun hasLocationPermission(context: Context): Boolean {
         val fineLocationGranted = ContextCompat.checkSelfPermission(
@@ -31,6 +37,7 @@ object GeofenceHelper {
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
+        // Background permission check for Android 10+
         val backgroundLocationGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContextCompat.checkSelfPermission(
                 context,
@@ -43,16 +50,24 @@ object GeofenceHelper {
         return fineLocationGranted && backgroundLocationGranted
     }
 
+    /**
+     * Creates a PendingIntent that will trigger the GeofenceBroadcastReceiver.
+     * Important: Must use FLAG_MUTABLE because the Geofencing system needs to 
+     * append transition data to the intent.
+     */
     fun geofencePendingIntent(context: Context): PendingIntent {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
         return PendingIntent.getBroadcast(
             context,
             7001,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE // Importante: deve essere MUTABLE per Geofencing
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
     }
 
+    /**
+     * Registers a circular geofence around a saved location.
+     */
     fun addGeofence(
         context: Context,
         location: SavedLocationEntity,
@@ -64,23 +79,26 @@ object GeofenceHelper {
             return
         }
 
+        // Define the geofence parameters
         val geofence = Geofence.Builder()
-            .setRequestId(location.id.toString())
+            .setRequestId(location.id.toString()) // Unique ID to identify this geofence
             .setCircularRegion(
                 location.latitude,
                 location.longitude,
                 location.geofenceRadiusMeters
             )
+            // Trigger on both entering and leaving the area
             .setTransitionTypes(
                 Geofence.GEOFENCE_TRANSITION_ENTER or
                         Geofence.GEOFENCE_TRANSITION_EXIT
             )
-            .setLoiteringDelay(10_000)
+            .setLoiteringDelay(10_000) // 10 seconds before considering "dwell" transition
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .build()
 
+        // Configure how the geofence request should behave initially
         val request = GeofencingRequest.Builder()
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER) // Trigger immediately if already inside
             .addGeofence(geofence)
             .build()
 
@@ -100,6 +118,9 @@ object GeofenceHelper {
         }
     }
 
+    /**
+     * Unregisters a specific geofence by its ID.
+     */
     fun removeGeofence(
         context: Context,
         locationId: Long,
@@ -113,6 +134,10 @@ object GeofenceHelper {
             }
     }
 
+    /**
+     * Clears all current geofences and re-registers only the ones that are marked as enabled in DB.
+     * Useful when permissions change or after a device reboot.
+     */
     fun refreshAllGeofences(
         context: Context,
         locations: List<SavedLocationEntity>

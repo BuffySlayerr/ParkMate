@@ -31,14 +31,20 @@ import com.example.parkmate.ui.viewmodel.VehicleViewModel
 import com.example.parkmate.ui.viewmodel.VehicleViewModelFactory
 import com.example.parkmate.ui.widget.ParkingStatusWidgetUpdater
 
+/*
+Main entry point of the application.
+Handles system-level configurations, permission requests, and ViewModel initialization.
+*/
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Enables transparent system bars (status and navigation) to allow the app 
+        // to draw behind them
         enableEdgeToEdge()
 
+        // Initialize Database and Repositories
         val database = ParkMateDatabase.getDatabase(this)
-
         val vehicleRepository = VehicleRepository(database.vehicleDao())
         val savedLocationRepository = SavedLocationRepository(database.savedLocationDao())
         val parkingSessionRepository = ParkingSessionRepository(
@@ -47,22 +53,28 @@ class MainActivity : ComponentActivity() {
             vehicleDao = database.vehicleDao()
         )
 
+        // Deep link handling: check if the app was opened from a notification
         val initialRoute = intent?.getStringExtra(NotificationNavigation.EXTRA_OPEN_ROUTE)
 
+        // Ensure notification channels exist for all types of alerts
         NotificationChannels.create(this)
 
-        //per updatare i widget quando apro l'app
+        // Synchronize widgets on startup to reflect any changes that happened 
+        // while the app was closed (e.g., via background workers or alarms)
         ParkingStatusWidgetUpdater.updateAllWidgets(this)
 
         setContent {
+            // Launcher for handling dynamic notification permission requests (Android 13+)
             val notificationPermissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission()
             ) { }
 
+            // Launcher for taking users to system settings for exact alarm permissions
             val exactAlarmSettingsLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.StartActivityForResult()
             ) { }
 
+            // Automatic check for notification permissions on app launch
             LaunchedEffect(Unit) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val granted = ContextCompat.checkSelfPermission(
@@ -76,6 +88,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            // Create Geofence notification channel manually (legacy support)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 val manager = getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
 
@@ -90,6 +103,7 @@ class MainActivity : ComponentActivity() {
                 manager.createNotificationChannel(geofenceChannel)
             }
 
+            // Helper lambda to open system settings for exact alarms
             val openExactAlarmSettings = remember {
                 {
                     if (!ExactAlarmPermissionHelper.canScheduleExactAlarms(this@MainActivity)) {
@@ -124,6 +138,7 @@ class MainActivity : ComponentActivity() {
                 )
             )
 
+            // Start the main Compose UI
             ParkMateApp(
                 vehicleViewModel = vehicleViewModel,
                 savedLocationViewModel = savedLocationViewModel,
@@ -137,7 +152,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        //aggiorna i widget quando app torna in primo piano
+        // Refresh widgets whenever the user returns to the app
         ParkingStatusWidgetUpdater.updateAllWidgets(this)
     }
 }

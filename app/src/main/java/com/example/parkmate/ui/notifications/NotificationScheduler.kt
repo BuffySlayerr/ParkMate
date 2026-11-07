@@ -10,11 +10,21 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
+/*
+Centralized scheduler for all time-based events in the app.
+It uses WorkManager for broad periodic tasks (Reminders)
+and AlarmManager for time-critical events (Ticket Expiry).
+*/
 object NotificationScheduler {
 
     private const val REMINDER_WORK_NAME = "parking_reminder_work"
     private const val WARNING_MINUTES_DEFAULT = 15L
 
+    /*
+    Schedules a periodic background worker that checks for active parking sessions.
+    If a session is found, it shows a notification to remind the user.
+    Frequency: ~15 minutes.
+    */
     fun scheduleParkingReminder(context: Context) {
         val request = PeriodicWorkRequestBuilder<ParkingReminderWorker>(
             15, TimeUnit.MINUTES
@@ -27,6 +37,9 @@ object NotificationScheduler {
         )
     }
 
+    /*
+    Stops the background reminder worker. Called when no parking sessions are active.
+    */
     fun cancelParkingReminder(context: Context) {
         WorkManager.getInstance(context)
             .cancelUniqueWork(REMINDER_WORK_NAME)
@@ -40,6 +53,12 @@ object NotificationScheduler {
         cancelParkingReminder(context)
     }
 
+    /*
+    Schedules two alarms for Fixed Ticket sessions:
+    1. A warning alarm (e.g., 15 mins before expiry)
+    2. An expiry alarm
+    Uses AlarmManager.setExactAndAllowWhileIdle to ensure triggers even in Doze mode.
+    */
     fun scheduleFixedTicketAlarms(
         context: Context,
         sessionId: Long,
@@ -48,8 +67,8 @@ object NotificationScheduler {
     ) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+        // Warning Alarm
         val warningAt = expiryMillis - TimeUnit.MINUTES.toMillis(WARNING_MINUTES_DEFAULT)
-
         if (warningAt > System.currentTimeMillis()) {
             alarmManager.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
@@ -64,6 +83,7 @@ object NotificationScheduler {
             )
         }
 
+        // Expiry Alarm
         val expiredPendingIntent = ticketPendingIntent(
             context = context,
             sessionId = sessionId,
@@ -73,6 +93,7 @@ object NotificationScheduler {
         )
 
         try {
+            // Android 12+ requires special permissions for EXACT alarms
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (alarmManager.canScheduleExactAlarms()) {
                     alarmManager.setExactAndAllowWhileIdle(
@@ -81,6 +102,7 @@ object NotificationScheduler {
                         expiredPendingIntent
                     )
                 } else {
+                    // Fallback to inexact if permission is missing
                     alarmManager.setAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
                         expiryMillis,
@@ -103,6 +125,9 @@ object NotificationScheduler {
         }
     }
 
+    /*
+    Cancels any pending alarms related to a specific session.
+    */
     fun cancelFixedTicketAlarms(
         context: Context,
         sessionId: Long
@@ -130,6 +155,9 @@ object NotificationScheduler {
         )
     }
 
+    /*
+    Helper to create unique PendingIntents for different sessions and alarm types.
+    */
     private fun ticketPendingIntent(
         context: Context,
         sessionId: Long,
